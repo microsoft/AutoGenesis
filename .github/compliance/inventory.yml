@@ -1,0 +1,9 @@
+inventory:
+- source: DirectOwners
+  items:
+  - id: qunmi@microsoft.com
+  - id: toyu@microsoft.com
+  - id: liujingping@microsoft.com
+  - id: yuexiong@microsoft.com
+  - id: zhengdawang@microsoft.com
+  isProduction: false
