@@ -120,9 +120,7 @@ class DriverSessionManager:
         self.header_code = ""
         self._driver = None
         self.server_url = self.config["server_url"]
-        # self.server_url = "http://127.0.0.1:4723"
         self.is_executing = False
-        self.launch_deeplink = "microsoft-edge-x://action/force-disable-variation"
 
     def start_tool_execution(self, tool_name):
         if self.is_executing:
@@ -175,8 +173,7 @@ class DriverSessionManager:
             package = self.app_package()
             logger.info("start activate app")
             try:
-                # self._driver.activate_app(package)
-                self._driver.get(self.launch_deeplink)
+                self._driver.activate_app(package)
                 return self._driver
             except Exception as e:
                 logger.warning(f"Failed to activate app on existing session: {e}. Creating new session.")
@@ -214,9 +211,7 @@ class DriverSessionManager:
             if package and self.device in ["ios", "android"]:
                 logger.info("Attempting to activate app")
                 try:
-                    self._driver.get(self.launch_deeplink)
-                    time.sleep(2)  # Wait a moment for the app to activate
-                    # self._driver.activate_app(package)
+                    self._driver.activate_app(package)
                     logger.info("App activated successfully")
                 except Exception as e:
                     logger.warning(f"activate_app not supported or failed: {e}. Continuing without activation.")
@@ -231,10 +226,27 @@ class DriverSessionManager:
             raise
 
     def app_package(self):
-        package_name = self._driver.capabilities.get("bundleId")
-        if package_name:
-            return package_name
-        return self._driver.capabilities.get("appPackage")
+        """Get from config first (reliable), then from capabilities (fallback)"""
+        # Priority 1: From config (100% reliable)
+        if self.device in ["ios", "mac"]:
+            package = self.config.get("bundleId")
+        elif self.device == "android":
+            package = self.config.get("appPackage")
+        else:
+            package = None
+        
+        if package:
+            return package
+        
+        # Priority 2: From capabilities (fallback for compatibility)
+        if self._driver:
+            caps = self._driver.capabilities
+            return (caps.get("bundleId") or 
+                    caps.get("appium:bundleId") or 
+                    caps.get("appPackage") or 
+                    caps.get("appium:appPackage"))
+        
+        return None
 
     def app_close(self):
         if self._driver and self._is_session_valid():

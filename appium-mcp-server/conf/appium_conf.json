@@ -1,66 +1,51 @@
 {
  "APPIUM_DRIVER_CONFIGS" : {
     "ios": {
-       "platformName": "iOS",
+        "platformName": "iOS",
         "deviceName": "iPhone 15 Pro",
-        "platformVersion": 17,
-        "appium:fullReset": true,
-        "appium:printPageSourceOnFindFailure": false,
+        "platformVersion": "17.0",
+        "automationName": "XCUITest",
+        "bundleId": "com.microsoft.msedge",
+        "udid": "auto",
+        "xcodeOrgId": "YOUR_TEAM_ID",
+        "xcodeSigningId": "iPhone Developer",
         "autoLaunch": false,
         "orientation": "PORTRAIT",
         "language": "en",
         "locale": "US",
-        "browserstack.resignApp": "false",
-        "automationName": "XCUITest",
-        "server_url": "http://hub.browserstack.com/wd/hub",
-        "bstack:options": {
-                "projectName": "Edge Debug Test",
-                "buildName": "ios automation",
-                "userName": "yuexiong_XRIJLA",
-                "accessKey": "JaPqRPDrZyV1gSp83AUj",
-                "buildIdentifier": "#${DATE_TIME}",
-                "appiumVersion": "2.12.1",
-                "idleTimeout": 900
-            },
-        "appium:app": "bs://09e609e31776b24a708e95f961bc45c5dea9ccf7"
+        "appium:fullReset": false,
+        "appium:printPageSourceOnFindFailure": true,
+        "appium:newCommandTimeout": 300,
+        "server_url": "http://127.0.0.1:4723"
     },
     "android": {
         "platformName": "Android",
-        "deviceName": "Google Pixel 8",
-        "platformVersion": "14.0",
-        "appium:fullReset": true,
-        "appium:printPageSourceOnFindFailure": false,
+        "deviceName": "Android Emulator",
+        "automationName": "UiAutomator2",
+        "appPackage": "com.microsoft.emmx",
+        "appActivity": "com.microsoft.ruby.Main",
         "autoLaunch": false,
         "orientation": "PORTRAIT",
         "language": "en",
         "locale": "US",
-        "browserstack.resignApp": "false",
-        "automationName": "UiAutomator2",
-        "server_url": "http://hub.browserstack.com/wd/hub",
-        "bstack:options": {
-                "projectName": "Edge Debug Test",
-                "buildName": "android automation",
-                "userName": "yuexiong_XRIJLA",
-                "accessKey": "JaPqRPDrZyV1gSp83AUj",
-                "buildIdentifier": "yue",
-                "appiumVersion": "2.12.1",
-                "idleTimeout": 900,
-                "interactiveDebugging": true
-            },
-        "appium:app": "bs://74eaf206f1484322e93ed038c2e51d3287035bd1"
+        "appium:fullReset": false,
+        "appium:printPageSourceOnFindFailure": true,
+        "appium:newCommandTimeout": 300,
+        "appium:noReset": true,
+        "appium:dontStopAppOnReset": true,
+        "server_url": "http://127.0.0.1:4723"
     },
     "mac": {
         "platformName": "Mac",
         "automationName": "Mac2",
+        "bundleId": "com.microsoft.edgemac.Canary",
         "appium:fullReset": false,
         "appium:sessionTimeout": 6000,
         "appium:newCommandTimeout": 6000,
         "shouldUseSingletonTestManager": false,
         "waitForQuiescence": false,
         "showServerLogs": true,
-        "server_url": "http://127.0.0.1:4723",
-        "bundleId": "com.microsoft.edgemac.Canary"
+        "server_url": "http://127.0.0.1:4723"
     }
 }
-
 }
