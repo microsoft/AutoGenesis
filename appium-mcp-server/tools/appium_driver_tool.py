@@ -74,21 +74,6 @@ def register_appium_driver_tools(mcp, driver_manager):
         except Exception as e:
             resp["error"] = repr(e)
             logger.error(f"Error launching app: {e}")
-            
-            # 检查是否是会话相关错误，且只在Mac平台进行诊断
-            error_str = str(e).lower()
-            if any(keyword in error_str for keyword in ['session does not exist', 'invalid session', 'nosuchdrivererror']):
-                # 只在Mac平台进行详细诊断
-                try:
-                    platform = driver_manager._driver.capabilities.get("platformName", "unknown").lower() if driver_manager._driver else "unknown"
-                    if platform == "mac":
-                        from driver_session import _log_session_failure_diagnostics
-                        session_id = getattr(driver_manager._driver, 'session_id', 'unknown') if driver_manager._driver else 'none'
-                        _log_session_failure_diagnostics(session_id, str(e))
-                    else:
-                        logger.debug(f"Session error on {platform} platform, skipping detailed diagnostics")
-                except Exception as diag_error:
-                    logger.error(f"Failed to run diagnostics: {diag_error}")
 
         return format_tool_response(resp)
 
@@ -162,19 +147,6 @@ def register_appium_driver_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error verifying element: {e}")
             
-            # 检查是否是会话相关错误，且只在Mac平台进行诊断
-            error_str = str(e).lower()
-            if any(keyword in error_str for keyword in ['session does not exist', 'invalid session', 'nosuchdrivererror']):
-                try:
-                    platform = driver_manager._driver.capabilities.get("platformName", "unknown").lower() if driver_manager._driver else "unknown"
-                    if platform == "mac":
-                        from driver_session import _log_session_failure_diagnostics
-                        session_id = getattr(driver_manager._driver, 'session_id', 'unknown') if driver_manager._driver else 'none'
-                        _log_session_failure_diagnostics(session_id, str(e))
-                    else:
-                        logger.debug(f"Session error on {platform} platform, skipping detailed diagnostics")
-                except Exception as diag_error:
-                    logger.error(f"Failed to run diagnostics: {diag_error}")
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
 

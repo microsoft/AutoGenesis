@@ -14,66 +14,13 @@ from utils.logger import get_mcp_logger
 logger = get_mcp_logger()
 
 
-def _log_session_failure_diagnostics(session_id, error_message):
-    """Log diagnostic information when session failure occurs"""
-    try:
-        logger.error(f"🚨 SESSION FAILURE DIAGNOSTICS for session {session_id}")
-        logger.error(f"🚨 Error: {error_message}")
-        logger.error(f"🚨 Time: {datetime.now().isoformat()}")
-        
-        # 1. 检查 WebDriverAgent 进程
-        try:
-            result = subprocess.run(["ps", "aux"], capture_output=True, text=True, check=False)
-            wda_lines = [line for line in result.stdout.split('\n') if 'webdriver' in line.lower()]
-            if wda_lines:
-                logger.error(f"🚨 WebDriverAgent processes ({len(wda_lines)}):")
-                for line in wda_lines[:5]:  # 只显示前5个
-                    logger.error(f"🚨   {line.strip()}")
-            else:
-                logger.error("🚨 No WebDriverAgent processes found")
-        except Exception as e:
-            logger.error(f"🚨 Failed to check processes: {e}")
-        
-        # 2. 检查端口占用
-        critical_ports = [4723, 10100]
-        for port in critical_ports:
-            try:
-                result = subprocess.run(["lsof", "-ti", f":{port}"], 
-                                      capture_output=True, text=True, check=False)
-                if result.stdout.strip():
-                    logger.error(f"🚨 Port {port}: occupied by PIDs {result.stdout.strip()}")
-                else:
-                    logger.error(f"🚨 Port {port}: free")
-            except Exception as e:
-                logger.error(f"🚨 Failed to check port {port}: {e}")
-        
-        # 3. 检查内存使用（简单版本）
-        try:
-            result = subprocess.run(["vm_stat"], capture_output=True, text=True, check=False)
-            if result.returncode == 0:
-                for line in result.stdout.split('\n')[:3]:  # 只显示前3行
-                    if line.strip():
-                        logger.error(f"🚨 Memory: {line.strip()}")
-        except Exception as e:
-            logger.error(f"🚨 Failed to check memory: {e}")
-        
-        # 4. 检查系统负载
-        try:
-            result = subprocess.run(["uptime"], capture_output=True, text=True, check=False)
-            if result.returncode == 0:
-                logger.error(f"🚨 System load: {result.stdout.strip()}")
-        except Exception as e:
-            logger.error(f"🚨 Failed to check system load: {e}")
-        
-        logger.error("🚨 END SESSION FAILURE DIAGNOSTICS")
-        
-    except Exception as e:
-        logger.error(f"🚨 Failed to run diagnostics: {e}")
-
-
 def _cleanup_mac_webdriver_processes():
     """Forcefully cleanup any lingering WebDriverAgent processes on Mac"""
     try:
+        # Force kill Edge processes to prevent "Leave site?" dialogs from blocking cleanup
+        logger.info("Cleaning up Microsoft Edge processes...")
+        subprocess.run(["pkill", "-9", "-f", "Microsoft Edge"], capture_output=True, check=False)
+        
         # Kill WebDriverAgentRunner processes
         logger.info("Cleaning up WebDriverAgentRunner processes...")
         subprocess.run(["pkill", "-f", "WebDriverAgentRunner"], capture_output=True, check=False)
@@ -143,20 +90,6 @@ class DriverSessionManager:
             self._driver.get_window_size()
             return True
         except Exception as e:
-            # 检查是否是会话相关的错误，且只在Mac平台进行诊断
-            error_str = str(e).lower()
-            session_id = getattr(self._driver, 'session_id', 'unknown')
-            
-            if any(keyword in error_str for keyword in ['session does not exist', 'invalid session', 'nosuchdrivererror']):
-                logger.error(f"Session validation failed with session-related error: {e}")
-                # 只在Mac设备上进行会话错误诊断
-                if self.device == "mac":
-                    _log_session_failure_diagnostics(session_id, str(e))
-                else:
-                    logger.debug(f"Session error on {self.device} platform, skipping detailed diagnostics")
-            else:
-                logger.debug(f"Session validation failed with non-session error: {e}")
-            
             return False
 
     def app_launch(self, kill_existing: int = 0, arguments: list = None):
