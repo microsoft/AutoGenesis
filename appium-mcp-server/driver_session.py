@@ -17,35 +17,12 @@ logger = get_mcp_logger()
 def _cleanup_mac_webdriver_processes():
     """Forcefully cleanup any lingering WebDriverAgent processes on Mac"""
     try:
-        # Force kill Edge processes to prevent "Leave site?" dialogs from blocking cleanup
-        logger.info("Cleaning up Microsoft Edge processes...")
-        subprocess.run(["pkill", "-9", "-f", "Microsoft Edge"], capture_output=True, check=False)
-        
         # Kill WebDriverAgentRunner processes
         logger.info("Cleaning up WebDriverAgentRunner processes...")
         subprocess.run(["pkill", "-f", "WebDriverAgentRunner"], capture_output=True, check=False)
 
         # Kill any lingering WebDriverAgent-related processes
         subprocess.run(["pkill", "-f", "WebDriverAgent"], capture_output=True, check=False)
-
-        # Kill any processes listening on common Mac2 driver ports
-        for port in [8100, 8101, 8102, 8103]:
-            try:
-                # Find and kill processes using these ports
-                result = subprocess.run(
-                    ["lsof", "-ti", f":{port}"],
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
-                if result.stdout.strip():
-                    pids = result.stdout.strip().split("\n")
-                    for pid in pids:
-                        if pid:
-                            subprocess.run(["kill", "-9", pid], capture_output=True, check=False)
-                            logger.info(f"Killed process {pid} using port {port}")
-            except Exception as e:
-                logger.debug(f"Error cleaning up port {port}: {e}")
 
         # Give a moment for cleanup to complete
         time.sleep(0.5)
