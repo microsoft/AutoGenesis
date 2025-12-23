@@ -33,7 +33,7 @@ def load_driver_configs(file_path=None):
     return appium_driver_configs
 
 # 创建 MCP server
-mcp = FastMCP("appium-mcp-server", log_level="INFO", settings=settings)
+mcp = FastMCP("appium-mcp-server", log_level="INFO")
 
 # 配置MCP底层服务器日志过滤
 def filter_mcp_lowlevel_logs():

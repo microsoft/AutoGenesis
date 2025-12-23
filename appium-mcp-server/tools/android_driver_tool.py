@@ -1,4 +1,5 @@
 import time
+import json
 from tools.appium_driver_tool import simplify_page_source, get_appium_locator
 
 import logging
@@ -45,7 +46,7 @@ def register_android_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))    
     
     @mcp.tool()
     @log_tool_call
@@ -83,4 +84,4 @@ def register_android_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))

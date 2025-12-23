@@ -1,5 +1,5 @@
 psutil
-mcp==1.9.4
+mcp==1.23.0
 selenium>=4.0.0
 appium-python-client>=2.0.0
 behave==1.2.6
