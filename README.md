@@ -50,6 +50,7 @@ AutoGenesis is a cross-platform client automation solution that leverages AI to 
 
 This project combines BDD (Behavior-Driven Development) testing with AI assistance powered by GitHub Copilot to streamline the test automation process. It includes:
 - **appium-mcp-server**: MCP (Model Context Protocol) server for mobile and desktop automation
+- **pywinauto-mcp-server**: MCP server for Windows desktop application automation using pywinauto
 - **bdd_ai_toolkit**: VS Code extension for AI-powered test recording
 - **behave-demo**: Sample BDD test cases using Behave framework
 
@@ -266,8 +267,12 @@ Use the following prompt template in Copilot Chat:
 ## Project Structure
 
     AutoGenesis/
-    ├── appium-mcp-server/       # MCP server for automation
+    ├── appium-mcp-server/       # MCP server for mobile/mac automation
     │   ├── tools/               # Platform-specific driver tools
+    │   ├── llm/                 # LLM integration
+    │   └── utils/               # Utilities
+    ├── pywinauto-mcp-server/    # MCP server for Windows automation
+    │   ├── tools/               # Windows-specific automation tools
     │   ├── llm/                 # LLM integration
     │   └── utils/               # Utilities
     ├── bdd_ai_toolkit/          # VS Code extension
@@ -281,6 +286,10 @@ Use the following prompt template in Copilot Chat:
 ### Appium Configuration
 
 Edit `appium-mcp-server/conf/appium_conf.json` to configure Appium settings.
+
+### Pywinauto Configuration
+
+Edit `pywinauto-mcp-server/conf/app_conf.json` to configure Windows application automation settings.
 
 ### Azure GPT (Optional)
 
