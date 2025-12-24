@@ -21,7 +21,6 @@ def register_common_tools(mcp, app_manager):
     @record_calls(app_manager)
     async def app_launch(
         caller: str, 
-        use_private: bool = False,
         scenario: str = "", 
         step: str = "", 
         step_raw: str = "",
@@ -31,7 +30,6 @@ def register_common_tools(mcp, app_manager):
         
         Args:
             caller: Identifier of the calling module/function
-            use_private: Whether to launch the app in private mode (optional, defaults to False)
             scenario: Test scenario name (for logging)
             step: Current test step description (for logging)
             step_raw: Raw original step text
@@ -41,7 +39,7 @@ def register_common_tools(mcp, app_manager):
         """
         resp = init_tool_response()        
         try:
-            await app_manager.app_launch(use_private=use_private)
+            await app_manager.app_launch()
             resp["status"] = "success"
             await fill_snapshot(resp, app_manager, need_snapshot=need_snapshot)
         except Exception as e:

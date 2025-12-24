@@ -42,7 +42,7 @@ def load_app_config(file_path=None):
 async def main():
     global app_manager
     parser = argparse.ArgumentParser()
-    parser.add_argument("--transport", choices=["stdio", "sse"], default="stidio")
+    parser.add_argument("--transport", choices=["stdio", "sse"], default="sse")
     parser.add_argument("--config", type=str, help="Path to config file")
     args = parser.parse_args()
 
