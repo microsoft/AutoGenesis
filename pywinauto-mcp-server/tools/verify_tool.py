@@ -471,19 +471,21 @@ def register_verify_tools(mcp, app_manager):
     @record_calls(app_manager)
     async def verify_visual_task(
         caller: str,
+        screenshot_path: str,
         task_description: str,
         scenario: str = "",
         step_raw: str = "",
         step: str = "",
     ) -> str:
         """
-        Captures a screenshot and verifies if the visual content matches the task description.
+        Read and analyze a screenshot, verify if the visual content matches the task description.
 
-        Combines screenshot capture and visual analysis to verify UI content automatically.
+        Combines screenshot reading and visual analysis to verify UI content automatically.
         Ideal for visual verification in automated testing scenarios.
 
         Args:
             caller (str): Calling module/function identifier
+            screenshot_path (str): Path to the screenshot image file
             task_description (str): Task to verify against the screenshot
             scenario (str): Test scenario name
             step_raw (str): Raw step text
@@ -497,13 +499,12 @@ def register_verify_tools(mcp, app_manager):
         """
         resp = init_tool_response()
         try:
-            # Capture the screenshot
-            main_window = await app_manager.get_main_window()
-
-            screenshot_data = main_window.capture_as_image()
-            image_buffer = io.BytesIO()
-            screenshot_data.save(image_buffer, format="PNG")
-            image_data = image_buffer.getvalue()
+            # Read the png formate screenshot from the provided path
+            if not screenshot_path.lower().endswith(".png"):
+                raise ValueError("Only PNG format screenshots are supported.")
+            
+            with open(screenshot_path, "rb") as f:
+                image_data = f.read()
 
             # Initialize LLMClient
             client = LLMClient()
