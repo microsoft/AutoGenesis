@@ -1,0 +1,14 @@
+{
+    "PYWINAUTO_CONF": {
+        "app_name": "edge-beta",
+        "exe": "C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe",
+        "window_title_re": ".*Microsoft.*Edge Beta",
+        "launch_args": [
+            "--no-first-run",
+            "--disable-features=msImplicitSignin",
+            "--force-device-scale-factor=0.8",
+            "--force-local-ntp",
+            "--window-size=1280,920"
+        ]
+    }
+}

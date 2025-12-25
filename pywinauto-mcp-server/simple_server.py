@@ -28,7 +28,7 @@ def load_app_config(file_path=None):
     if file_path is not None:
         app_conf_path = Path(file_path)
     else:
-        app_conf_path = Path(__file__).parent / "conf" / "app_conf.json"
+        app_conf_path = Path(__file__).parent / "conf" / "pywinauto_conf.json"
 
     if not app_conf_path.exists():
         logger.error(f"App configuration file not found: {app_conf_path}")  
@@ -37,7 +37,7 @@ def load_app_config(file_path=None):
     with open(app_conf_path, 'r', encoding='utf-8') as f:
         app_conf = json.load(f)
 
-    return app_conf.get("app_conf", {})
+    return app_conf.get("PYWINAUTO_CONFIG", {})
 
 async def main():
     global app_manager
