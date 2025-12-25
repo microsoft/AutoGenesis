@@ -65,7 +65,7 @@ async function checkForMcpServerUpdates(
     const serverPaths = new Map<string, string>();
 
     // Check both possible server types
-    const autoMcpPath = path.join(extensionStoragePath, "auto-mcp-demo");
+    const autoMcpPath = path.join(extensionStoragePath, "pywinauto-mcp-server");
     const appiumMcpPath = path.join(extensionStoragePath, "appium-mcp-server");
 
     if (fs.existsSync(autoMcpPath)) {

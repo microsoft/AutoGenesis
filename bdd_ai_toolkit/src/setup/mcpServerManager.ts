@@ -46,7 +46,7 @@ export class McpServerManager {
     const projectBaseName = path.basename(projectPath);
     const serverTypeSuffix =
       serverType === "windows-browser" ? "windows" : "appium";
-    const serverName = `bdd-auto-mcp-${projectBaseName}-${serverTypeSuffix}`;
+    const serverName = `bdd-pywinauto-mcp-${projectBaseName}-${serverTypeSuffix}`;
     console.log(`Setting up MCP server: ${serverName}`);
 
     // Use extension's storage path instead of project path to keep MCP server hidden from users
@@ -704,14 +704,14 @@ export class McpServerManager {
   private getSourceDirectoryForServerType(serverType: string): string {
     switch (serverType) {
       case "windows-browser":
-        return "auto-mcp-demo";
+        return "pywinauto-mcp-server";
       case "appium-common":
         return "appium-mcp-server";
       default:
         console.warn(
-          `Unknown server type: ${serverType}, using default auto-mcp-demo`
+          `Unknown server type: ${serverType}, using default pywinauto-mcp-server`
         );
-        return "auto-mcp-demo";
+        return "pywinauto-mcp-server";
     }
   }
 
@@ -728,7 +728,7 @@ export class McpServerManager {
     // Get the script file and additional args based on server type
     switch (serverConfig.serverType) {
       case "windows-browser":
-        // For Windows browser automation (auto-mcp-demo)
+        // For Windows browser automation (pywinauto-mcp-server)
         const browserArgs = [
           path.join(serverConfig.serverPath, "simple_server.py"),
           "--transport",
