@@ -1,8 +1,8 @@
 psutil
-mcp==1.9.4
+mcp==1.23.0
 janus
 pillow
-pywinauto
+pywinauto>=0.6.9
 behave==1.2.6
 playwright
 langchain>=0.1.20

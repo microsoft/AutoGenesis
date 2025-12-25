@@ -15,11 +15,11 @@ from tools.gen_code_tool import register_gen_code_tools
 from tools.mouse_tool import register_mouse_tools
 from tools.verify_tool import register_verify_tools
 
-settings = {"log_level": "DEBUG"}
+
 logger = logging.getLogger(__name__)
 
 # Create MCP server
-mcp = FastMCP("hello-mcp-server", log_level="INFO", settings=settings)
+mcp = FastMCP("hello-mcp-server", log_level="INFO")
 app_manager = None
 
 
