@@ -220,7 +220,7 @@ def register_mac_driver_tools(mcp, driver_manager):
             logger.warning(f"Failed to get page source: {page_e}")
             resp["data"] = {"page_source": ""}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -256,7 +256,7 @@ def register_mac_driver_tools(mcp, driver_manager):
             resp["data"] = {"page_source": ""}
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -302,7 +302,7 @@ def register_mac_driver_tools(mcp, driver_manager):
             logger.warning(f"Failed to get page source: {page_e}")
             resp["data"] = {"page_source": ""}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -396,7 +396,7 @@ def register_mac_driver_tools(mcp, driver_manager):
             logger.warning(f"Failed to get page source: {page_e}")
             resp["data"] = {"page_source": ""}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -482,7 +482,7 @@ def register_mac_driver_tools(mcp, driver_manager):
             logger.warning(f"Failed to get page source: {page_e}")
             resp["data"] = {"page_source": ""}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -532,7 +532,7 @@ def register_mac_driver_tools(mcp, driver_manager):
             logger.warning(f"Failed to get page source: {page_e}")
             resp["data"] = {"page_source": ""}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -651,4 +651,4 @@ def register_mac_driver_tools(mcp, driver_manager):
                 resp["data"] = {}
             resp["data"]["page_source"] = ""
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))

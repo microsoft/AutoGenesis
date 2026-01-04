@@ -478,19 +478,28 @@ def record_calls(browser_manager):
             
             try:
                 result = await func(*args, **kwargs)
-                json_result = json.loads(result)
+                
+                # 如果 result 是字符串，先解析为字典
+                if isinstance(result, str):
+                   json_result = json.loads(result)
+                   if isinstance(json_result, str):
+                       json_result = json.loads(json_result)
+                else:
+                    json_result = result
+                print(f"\n type of result: {type(result)}, type of json_result: {type(json_result)}\n")
+
                 if json_result.get("status") != "success":
-                    # logger.warning(f"result failed, no record call: tool_name={func.__name__}, result={json_result}")
-                    return result
+                    return result  
+                
                 call_info = {}
                 tool_params = log_params(func, *args, **kwargs)
                 if tool_params.get('caller') == MCP_SERVER_INTERNAL_CALL:
                     logger.info(f"Internal call detected, no record: tool_name={func.__name__}, tool_params={tool_params}")
-                    return result
+                    return result  # 返回原始的 result
+                
                 if browser_manager.gen_code_id and (tool_params.get('step_raw', '') or tool_params.get('step', '')):
                     tool_params['caller'] = 'behave-automation'
                     call_info['scenario'] = tool_params.pop('scenario', '')
-                    # call_info['step'] = tool_params.pop('step', '')
                     step_raw = tool_params.pop('step_raw', '').strip()
                     step_ai = tool_params.pop('step', '').strip()
                     call_info['step'] = step_raw if step_raw else step_ai
@@ -503,7 +512,7 @@ def record_calls(browser_manager):
                     # logger.info(f"record_calls: No gen_code_id or step info, skipping record for tool_name={func.__name__}")
                     pass
  
-                return result
+                return result  # 返回原始的 result（字符串格式）
             except Exception as e:
                 import traceback
                 traceback.print_exc()

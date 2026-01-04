@@ -5,8 +5,9 @@ from selenium.common.exceptions import TimeoutException
 import logging
 import time
 import io
+import json
 
-# from utils.element_util import extract_element_info
+# from utils.element_util import extract_element_util
 from utils.logger import log_tool_call
 from utils.response_format import format_tool_response, init_tool_response
 from utils.gen_code import record_calls
@@ -75,7 +76,7 @@ def register_appium_driver_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error launching app: {e}")
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -90,7 +91,7 @@ def register_appium_driver_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error closing app: {e}")
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -105,7 +106,7 @@ def register_appium_driver_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error closing session: {e}")
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -150,7 +151,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -214,7 +215,7 @@ def register_appium_driver_tools(mcp, driver_manager):
             if "data" not in resp:
                 resp["data"] = {}
             resp["data"]["page_source"] = simplify_page_source(page_source)
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -255,7 +256,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -320,122 +321,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
-
-    # @mcp.tool()
-    # @log_tool_call
-    # @record_calls(driver_manager)
-    # async def swipe_up(caller: str, step: str = "", scenario: str = "", step_raw: str = "") -> str:
-    #     """Swipe up on the screen
-    #     Args:
-    #         caller: caller name
-    #         step: step name
-    #         scenario: scenario name
-    #         step_raw: raw original step text
-    #     """
-    #     resp = init_tool_response()
-    #     try:
-    #         driver = driver_manager._driver
-    #         size = driver.get_window_size()
-    #         start_x = size['width'] // 2
-    #         start_y = size['height'] * 3 // 4
-    #         end_x = size['width'] // 2
-    #         end_y = size['height'] // 4
-    #         driver.swipe(start_x, start_y, end_x, end_y, 1000)
-    #         resp["status"] = "success"
-    #     except Exception as e:
-    #         resp["error"] = repr(e)
-    #         logger.error(f"Error performing swipe up: {e}")
-    #     page_source = driver.page_source
-    #     resp["data"] = {"page_source": page_source}
-
-    #     return format_tool_response(resp)
-
-    # @mcp.tool()
-    # @log_tool_call
-    # @record_calls(driver_manager)
-    # async def swipe_down(caller: str, step: str = "", scenario: str = "", step_raw: str = "") -> str:
-    #     """Swipe down on the screen
-    #     Args:
-    #         caller: caller name
-    #         step: step name
-    #         scenario: scenario name
-    #         step_raw: raw original step text
-    #     """
-    #     resp = init_tool_response()
-    #     try:
-    #         driver = driver_manager._driver
-    #         size = driver.get_window_size()
-    #         start_x = size['width'] // 2
-    #         start_y = size['height'] // 4
-    #         end_x = size['width'] // 2
-    #         end_y = size['height'] * 3 // 4
-    #         driver.swipe(start_x, start_y, end_x, end_y, 1000)
-    #         resp["status"] = "success"
-    #     except Exception as e:
-    #         resp["error"] = repr(e)
-    #         logger.error(f"Error performing swipe down: {e}")
-    #     page_source = driver.page_source
-    #     resp["data"] = {"page_source": page_source}
-
-    #     return format_tool_response(resp)
-
-    # @mcp.tool()
-    # @log_tool_call
-    # @record_calls(driver_manager)
-    # async def swipe_left(caller: str, step: str = "", scenario: str = "", step_raw: str = "") -> str:
-    #     """Swipe left on the screen
-    #     Args:
-    #         caller: caller name
-    #         step: step name
-    #         scenario: scenario name
-    #         step_raw: raw original step text
-    #     """
-    #     resp = init_tool_response()
-    #     try:
-    #         driver = driver_manager._driver
-    #         size = driver.get_window_size()
-    #         start_x = size['width'] * 3 // 4
-    #         start_y = size['height'] // 2
-    #         end_x = size['width'] // 4
-    #         end_y = size['height'] // 2
-    #         driver.swipe(start_x, start_y, end_x, end_y, 1000)
-    #         resp["status"] = "success"
-    #     except Exception as e:
-    #         resp["error"] = repr(e)
-    #         logger.error(f"Error performing swipe left: {e}")
-    #     page_source = driver.page_source
-    #     resp["data"] = {"page_source": page_source}
-
-    #     return format_tool_response(resp)
-
-    # @mcp.tool()
-    # @log_tool_call
-    # @record_calls(driver_manager)
-    # async def swipe_right(caller: str, step: str = "", scenario: str = "", step_raw: str = "") -> str:
-    #     """Swipe right on the screen
-    #     Args:
-    #         caller: caller name
-    #         step: step name
-    #         scenario: scenario name
-    #         step_raw: raw original step text
-    #     """
-    #     resp = init_tool_response()
-    #     try:
-    #         driver = driver_manager._driver
-    #         size = driver.get_window_size()
-    #         start_x = size['width'] // 4
-    #         start_y = size['height'] // 2
-    #         end_x = size['width'] * 3 // 4
-    #         end_y = size['height'] // 2
-    #         driver.swipe(start_x, start_y, end_x, end_y, 1000)
-    #     except Exception as e:
-    #         resp["error"] = repr(e)
-    #         logger.error(f"Error performing swipe right: {e}")
-    #     page_source = driver.page_source
-    #     resp["data"] = {"page_source": page_source}
-
-    #     return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -481,7 +367,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -541,7 +427,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -574,7 +460,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -611,7 +497,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -641,7 +527,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"]["page_source"] = page_source
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -682,7 +568,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -723,7 +609,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -762,7 +648,7 @@ def register_appium_driver_tools(mcp, driver_manager):
             resp["status"] = "error"
             logger.error(f"Error switching element to off: {e}")
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -797,7 +683,7 @@ def register_appium_driver_tools(mcp, driver_manager):
             resp["status"] = "error"
             logger.error(f"Error getting page source tree: {e}")
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -822,7 +708,7 @@ def register_appium_driver_tools(mcp, driver_manager):
         page_source = driver_manager._driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -876,7 +762,7 @@ def register_appium_driver_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error in verify_visual_task: {e}")
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -908,4 +794,4 @@ def register_appium_driver_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error in take_screenshot: {e}")
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))

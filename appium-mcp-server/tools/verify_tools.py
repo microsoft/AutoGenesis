@@ -64,7 +64,7 @@ def register_verify_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -101,7 +101,7 @@ def register_verify_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -164,7 +164,7 @@ def register_verify_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
@@ -246,5 +246,5 @@ def register_verify_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
 
