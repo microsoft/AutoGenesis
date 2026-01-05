@@ -49,7 +49,7 @@ class DriverSessionManager:
             # Try to get the session status to validate the session
             self._driver.get_window_size()
             return True
-        except Exception as e:   
+        except Exception as e:
             return False
 
     def app_launch(self, kill_existing: int = 0, arguments: list = None):
