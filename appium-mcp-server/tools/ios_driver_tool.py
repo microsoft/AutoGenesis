@@ -50,7 +50,7 @@ def register_ios_driver_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error dismissing alert: {e}")
       
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
     
     @mcp.tool()
     @log_tool_call
@@ -74,7 +74,7 @@ def register_ios_driver_tools(mcp, driver_manager):
             resp["status"] = "error"
             resp["error"] = f"Error sending keys on iOS: {str(e)}"
         
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
     
     @mcp.tool()
     @log_tool_call
@@ -118,4 +118,4 @@ def register_ios_driver_tools(mcp, driver_manager):
         page_source = driver.page_source
         resp["data"] = {"page_source": simplify_page_source(page_source)}
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))

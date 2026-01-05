@@ -1,10 +1,10 @@
 psutil
 mcp==1.23.0
-selenium>=4.0.0
-appium-python-client>=2.0.0
+janus
+pillow
+pywinauto>=0.6.9
 behave==1.2.6
-janus>=0.6.0
-browserstack-sdk==1.23.8
+playwright
 langchain>=0.1.20
 langchain-openai>=0.0.8
 langchain-anthropic>=0.0.8
@@ -12,5 +12,6 @@ langchain-google-genai>=0.0.8
 google-generativeai>=0.4.0
 anthropic>=0.22.0
 openai>=1.0.0
-pillow==11.1.0
-applicationinsights
+anyio>=4.9.0
+pyautogui>=0.9.54
+Pympler==1.1

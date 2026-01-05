@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import logging
@@ -68,44 +69,40 @@ def register_gen_code_tools(mcp, browser_manager):
             logger.error(f"Error during code generation: {repr(e)}")
             raise e
 
-        return format_tool_response(resp)
+        return json.dumps(format_tool_response(resp))
     
     @mcp.tool()
     @log_tool_call
     async def preview_code_changes() -> str:
         """Preview generated test code changes and confirm before applying"""
+        resp = init_tool_response()
+        
         if not browser_manager.gen_code_id or not browser_manager.gen_code_cache:
-            return "No pending code changes to preview"
+            resp["status"] = "success"
+            resp["data"] = {"message": "No pending code changes to preview"}
+            return json.dumps(format_tool_response(resp))
         
         result = gen_code_preview(browser_manager)
-    
-        return result.get('diff_preview')
-    
-
-    # @mcp.tool()
-    # @log_tool_call
-    # async def after_gen_code() -> str:
-    #     """execute after generate test case code"""
-    #     if not browser_manager.gen_code_id or not browser_manager.gen_code_cache:
-    #         return "No pending code changes to generate"
-    #     # Instead of applying changes directly, trigger the preview
-    #     result_preview = await preview_code_changes()
-    #     result_confirm = await confirm_code_changes()
-    #     # diff_preview, new_added_code, new_steps_count  = preview_code_changes(browser_manager.gen_code_cache)
-    #     # browser_manager.proposed_changes = new_added_code
-    #     # browser_manager.new_steps_count = new_steps_count
-    #     # logger.info(f"[GEN CODE END]:{browser_manager.gen_code_id}")
-    #     return f"Code generation completed with ID: {browser_manager.gen_code_id}\n\n{result_confirm}\n\nUse confirm_code_changes tool to apply or reject changes."
+        resp["status"] = "success"
+        resp["data"] = {"diff_preview": result.get('diff_preview')}
+        
+        return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
     async def confirm_code_changes() -> str:
         """Confirm the previewed code changes"""
+        resp = init_tool_response()
+        
         if not hasattr(browser_manager, 'proposed_changes') or not browser_manager.proposed_changes:
-            return "No pending code changes to confirm"
+            resp["status"] = "success"
+            resp["data"] = {"message": "No pending code changes to confirm"}
+            return json.dumps(format_tool_response(resp))
         
         if not ensure_step_path_exists(browser_manager.step_file_target):
-            return f"Failed to create directory structure for {browser_manager.step_file_target}"
+            resp["status"] = "error"
+            resp["error"] = f"Failed to create directory structure for {browser_manager.step_file_target}"
+            return json.dumps(format_tool_response(resp))
         
         try:
             with open(browser_manager.step_file_target, 'a', encoding='utf-8') as f:
@@ -116,12 +113,16 @@ def register_gen_code_tools(mcp, browser_manager):
             
             result = f"Applied {len(browser_manager.proposed_changes)} new steps to {browser_manager.step_file_target}"
             browser_manager.new_steps_count = len(browser_manager.proposed_changes)
+            resp["status"] = "success"
+            resp["data"] = {"message": result, "new_steps_count": browser_manager.new_steps_count}
         except Exception as e:
             result = f"Error applying changes to {browser_manager.step_file_target}: {str(e)}"
             logger.error(result)
+            resp["status"] = "error"
+            resp["error"] = result
         
         # Clear the proposed changes
         browser_manager.clear_gen_code_cache()
-        return result
+        return json.dumps(format_tool_response(resp))
 
 
