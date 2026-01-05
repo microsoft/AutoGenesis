@@ -4,6 +4,7 @@ import time
 import logging
 import subprocess
 import os
+import threading
 from datetime import datetime
 from appium import webdriver
 from appium.options.ios import XCUITestOptions
@@ -12,24 +13,6 @@ from appium.options.android import UiAutomator2Options  # Add this for Android i
 from utils.logger import get_mcp_logger
 
 logger = get_mcp_logger()
-
-
-def _cleanup_mac_webdriver_processes():
-    """Forcefully cleanup any lingering WebDriverAgent processes on Mac"""
-    try:
-        # Kill WebDriverAgentRunner processes
-        logger.info("Cleaning up WebDriverAgentRunner processes...")
-        subprocess.run(["pkill", "-f", "WebDriverAgentRunner"], capture_output=True, check=False)
-
-        # Kill any lingering WebDriverAgent-related processes
-        subprocess.run(["pkill", "-f", "WebDriverAgent"], capture_output=True, check=False)
-
-        # Give a moment for cleanup to complete
-        time.sleep(0.5)
-        logger.info("Mac WebDriverAgent process cleanup completed")
-
-    except Exception as e:
-        logger.warning(f"Error during Mac process cleanup: {e}")
 
 
 class DriverSessionManager:
@@ -66,17 +49,16 @@ class DriverSessionManager:
             # Try to get the session status to validate the session
             self._driver.get_window_size()
             return True
-        except Exception as e:
+        except Exception as e:   
             return False
 
     def app_launch(self, kill_existing: int = 0, arguments: list = None):
         if kill_existing == 1:
             self.app_close()
 
-        # For Mac platform, perform forcefully cleanup any lingering WebDriverAgent processes
-        if self.device == "mac":
-            logger.info("Mac platform: performing process cleanup and session close before new session")
-            _cleanup_mac_webdriver_processes()
+        if self.device == "mac" and self._driver and self._is_session_valid():
+            logger.info("Mac platform: closing existing session before new session")
+            self.session_close()
 
         if self._driver and self._is_session_valid():
             logger.info("Driver session already exists and is valid, reusing it.")
@@ -136,31 +118,13 @@ class DriverSessionManager:
             raise
 
     def app_package(self):
-        """Get from config first (reliable), then from capabilities (fallback)"""
-        # Priority 1: From config (100% reliable)
-        if self.device in ["ios", "mac"]:
-            package = self.config.get("bundleId")
-        elif self.device == "android":
-            package = self.config.get("appPackage")
-        else:
-            package = None
-        
-        if package:
-            return package
-        
-        # Priority 2: From capabilities (fallback for compatibility)
-        if self._driver:
-            caps = self._driver.capabilities
-            return (caps.get("bundleId") or 
-                    caps.get("appium:bundleId") or 
-                    caps.get("appPackage") or 
-                    caps.get("appium:appPackage"))
-        
-        return None
+        package_name = self._driver.capabilities.get("bundleId")
+        if package_name:
+            return package_name
+        return self._driver.capabilities.get("appPackage")
 
     def app_close(self):
         if self._driver and self._is_session_valid():
-            logger.info("Closing app session")
             package = self.app_package()
             if package and self.device in ["ios", "android"]:
                 # For iOS and Android, terminate the app using bundle ID
@@ -169,11 +133,57 @@ class DriverSessionManager:
         else:
             logger.warning("No app to close or driver session is invalid.")
 
+    def _force_kill_mac_app(self, package):
+        """Force kill a Mac app by bundle ID using osascript and kill -9"""
+        try:
+            logger.info(f"Force killing {package} using osascript/kill")
+            cmd = ['osascript', '-e', f'tell application "System Events" to unix id of processes whose bundle identifier is "{package}"']
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+            if result.returncode == 0 and result.stdout.strip():
+                pids = result.stdout.strip().split(',')
+                for pid in pids:
+                    pid = pid.strip()
+                    if pid.isdigit():
+                        logger.info(f"Killing PID {pid}")
+                        subprocess.run(['kill', '-9', pid], check=False)
+            else:
+                logger.info(f"No running processes found for {package}")
+        except Exception as e:
+            logger.warning(f"Failed to force kill app: {e}")
+
     def session_close(self):
         """Close the current driver session"""
         if self._driver and self._is_session_valid():
             logger.info("Closing driver session")
-            self._driver.quit()
+            
+            if self.device == "mac":
+                package = self.app_package()
+                
+                # Define a wrapper for quit to run in a thread
+                def quit_driver():
+                    try:
+                        if self._driver:
+                            self._driver.quit()
+                    except Exception as e:
+                        logger.warning(f"Error during driver quit: {e}")
+
+                # Run quit in a thread with timeout
+                quit_thread = threading.Thread(target=quit_driver)
+                quit_thread.start()
+                quit_thread.join(timeout=5)  # Wait for 5 seconds
+                
+                if quit_thread.is_alive():
+                    logger.warning("Driver quit timed out (likely stuck on dialog), forcing app kill")
+                    if package:
+                        self._force_kill_mac_app(package)
+                    # Since we forced killed the app, the session is likely broken/gone.
+                    # We don't need to wait for the thread anymore.
+            else:
+                try:
+                    self._driver.quit()
+                except Exception as e:
+                    logger.warning(f"Error during driver quit: {e}")
+            
             self._driver = None
         else:
             logger.warning("No valid driver session to close.")
