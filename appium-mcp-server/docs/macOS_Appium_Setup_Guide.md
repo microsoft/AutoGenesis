@@ -1,15 +1,5 @@
 # macOS Appium Setup Guide
 
-> **Note**: This is a utility tool for macOS Appium automation. Not a core feature of the extension.
-
-## Quick Start
-
-```bash
-# Run setup script (checks environment and starts Appium)
-cd scripts
-./start_appium.sh
-```
-
 ## Prerequisites
 
 - **macOS**: 10.15+ (macOS 12+ recommended)
