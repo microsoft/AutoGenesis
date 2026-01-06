@@ -118,10 +118,27 @@ class DriverSessionManager:
             raise
 
     def app_package(self):
-        package_name = self._driver.capabilities.get("bundleId")
-        if package_name:
-            return package_name
-        return self._driver.capabilities.get("appPackage")
+        """Get from config first (reliable), then from capabilities (fallback)"""
+        # Priority 1: From config (100% reliable)
+        if self.device in ["ios", "mac"]:
+            package = self.config.get("bundleId")
+        elif self.device == "android":
+            package = self.config.get("appPackage")
+        else:
+            package = None
+
+        if package:
+            return package
+
+        # Priority 2: From capabilities (fallback for compatibility)
+        if self._driver:
+            caps = self._driver.capabilities
+            return (caps.get("bundleId") or 
+                    caps.get("appium:bundleId") or 
+                    caps.get("appPackage") or 
+                    caps.get("appium:appPackage"))
+
+        return None
 
     def app_close(self):
         if self._driver and self._is_session_valid():
