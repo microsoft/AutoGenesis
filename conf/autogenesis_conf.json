@@ -1,0 +1,55 @@
+{
+    "mobile": {
+        "ios": {
+            "platformName": "iOS",
+            "deviceName": "iPhone 16 Pro",
+            "platformVersion": "18.0",
+            "appium:fullReset": true,
+            "appium:printPageSourceOnFindFailure": false,
+            "autoLaunch": false,
+            "orientation": "PORTRAIT",
+            "language": "en",
+            "locale": "US",
+            "automationName": "XCUITest",
+            "server_url": "http://127.0.0.1:4723",
+            "appium:app": "/path/to/your/app.ipa"
+        },
+        "android": {
+            "platformName": "Android",
+            "deviceName": "Pixel 8",
+            "platformVersion": "14.0",
+            "appium:fullReset": true,
+            "autoLaunch": false,
+            "automationName": "UiAutomator2",
+            "server_url": "http://127.0.0.1:4723",
+            "appium:app": "/path/to/your/app.apk"
+        }
+    },
+    "mac": {
+        "platformName": "Mac",
+        "automationName": "Mac2",
+        "bundleId": "com.microsoft.edgemac",
+        "appium:fullReset": false,
+        "appium:sessionTimeout": 6000,
+        "appium:newCommandTimeout": 6000,
+        "shouldUseSingletonTestManager": false,
+        "waitForQuiescence": false,
+        "showServerLogs": true,
+        "server_url": "http://127.0.0.1:4723"
+    },
+    "windows": {
+        "app_name": "YourApp",
+        "exe": "C:\\Program Files\\YourApp\\app.exe",
+        "window_title_re": "YourApp.*",
+        "launch_args": []
+    },
+    "healing": {
+        "enabled": true,
+        "mode": "git_branch",
+        "branch_prefix": "autogenesis/heal/",
+        "auto_verify_on_merge": true,
+        "max_retries": 3,
+        "confidence_threshold": 0.8,
+        "cleanup_on_success": true
+    }
+}

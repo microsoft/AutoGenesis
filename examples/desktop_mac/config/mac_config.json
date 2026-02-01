@@ -1,0 +1,43 @@
+{
+    "textedit": {
+        "platformName": "Mac",
+        "automationName": "Mac2",
+        "bundleId": "com.apple.TextEdit",
+        "appium:fullReset": false,
+        "appium:sessionTimeout": 6000,
+        "appium:newCommandTimeout": 6000,
+        "shouldUseSingletonTestManager": false,
+        "waitForQuiescence": false,
+        "showServerLogs": true,
+        "server_url": "http://127.0.0.1:4723"
+    },
+    "finder": {
+        "platformName": "Mac",
+        "automationName": "Mac2",
+        "bundleId": "com.apple.finder",
+        "appium:fullReset": false,
+        "appium:sessionTimeout": 6000,
+        "appium:newCommandTimeout": 6000,
+        "shouldUseSingletonTestManager": false,
+        "waitForQuiescence": false,
+        "server_url": "http://127.0.0.1:4723"
+    },
+    "safari": {
+        "platformName": "Mac",
+        "automationName": "Mac2",
+        "bundleId": "com.apple.Safari",
+        "appium:fullReset": false,
+        "appium:sessionTimeout": 6000,
+        "appium:newCommandTimeout": 6000,
+        "server_url": "http://127.0.0.1:4723"
+    },
+    "edge": {
+        "platformName": "Mac",
+        "automationName": "Mac2",
+        "bundleId": "com.microsoft.edgemac",
+        "appium:fullReset": false,
+        "appium:sessionTimeout": 6000,
+        "appium:newCommandTimeout": 6000,
+        "server_url": "http://127.0.0.1:4723"
+    }
+}

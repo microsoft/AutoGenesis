@@ -1,0 +1,20 @@
+{
+    "notepad": {
+        "app_name": "Notepad",
+        "exe": "notepad.exe",
+        "window_title_re": ".*Notepad.*",
+        "launch_args": []
+    },
+    "calculator": {
+        "app_name": "Calculator",
+        "exe": "calc.exe",
+        "window_title_re": "Calculator",
+        "launch_args": []
+    },
+    "custom_app": {
+        "app_name": "YourApp",
+        "exe": "C:\\Program Files\\YourApp\\app.exe",
+        "window_title_re": "YourApp.*",
+        "launch_args": ["--config", "test.json"]
+    }
+}

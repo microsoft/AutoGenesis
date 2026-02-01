@@ -1,0 +1,46 @@
+{
+    "platform": "ios",
+    "ios": {
+        "platformName": "iOS",
+        "deviceName": "iPhone 16 Pro",
+        "platformVersion": "18.0",
+        "automationName": "XCUITest",
+        "appium:fullReset": false,
+        "appium:noReset": true,
+        "autoLaunch": false,
+        "orientation": "PORTRAIT",
+        "language": "en",
+        "locale": "US",
+        "server_url": "http://127.0.0.1:4723",
+        "appium:app": "/path/to/YourApp.ipa",
+        "appium:bundleId": "com.example.yourapp"
+    },
+    "android": {
+        "platformName": "Android",
+        "deviceName": "Pixel 8",
+        "platformVersion": "14.0",
+        "automationName": "UiAutomator2",
+        "appium:fullReset": false,
+        "appium:noReset": true,
+        "autoLaunch": false,
+        "server_url": "http://127.0.0.1:4723",
+        "appium:app": "/path/to/YourApp.apk",
+        "appium:appPackage": "com.example.yourapp",
+        "appium:appActivity": ".MainActivity"
+    },
+    "browserstack": {
+        "enabled": false,
+        "userName": "YOUR_USERNAME",
+        "accessKey": "YOUR_ACCESS_KEY",
+        "ios": {
+            "device": "iPhone 15 Pro",
+            "os_version": "17",
+            "app": "bs://YOUR_APP_ID"
+        },
+        "android": {
+            "device": "Google Pixel 8",
+            "os_version": "14.0",
+            "app": "bs://YOUR_APP_ID"
+        }
+    }
+}

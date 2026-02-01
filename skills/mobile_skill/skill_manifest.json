@@ -1,0 +1,171 @@
+{
+  "name": "mobile_skill",
+  "version": "1.0.0",
+  "description": "Mobile testing skill for iOS and Android platforms using Appium",
+  "platforms": ["ios", "android"],
+  "capabilities": [
+    "app_launch",
+    "app_close",
+    "element_interaction",
+    "gestures",
+    "visual_verification",
+    "page_source"
+  ],
+  "tools": [
+    {
+      "name": "app_launch",
+      "description": "Launch the mobile application",
+      "parameters": {
+        "arguments": {
+          "type": "list",
+          "required": false,
+          "description": "Optional command line arguments"
+        }
+      }
+    },
+    {
+      "name": "app_close",
+      "description": "Close the mobile application"
+    },
+    {
+      "name": "session_close",
+      "description": "Close the Appium driver session"
+    },
+    {
+      "name": "find_element",
+      "description": "Find element on page",
+      "parameters": {
+        "locator_value": {
+          "type": "string",
+          "required": true,
+          "description": "Element locator value"
+        },
+        "locator_strategy": {
+          "type": "string",
+          "required": false,
+          "description": "Locator strategy (e.g., ACCESSIBILITY_ID, XPATH)"
+        }
+      }
+    },
+    {
+      "name": "click_element",
+      "description": "Click an element",
+      "parameters": {
+        "locator_value": {
+          "type": "string",
+          "required": true
+        },
+        "locator_strategy": {
+          "type": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "send_keys",
+      "description": "Enter text into an element",
+      "parameters": {
+        "locator_value": {
+          "type": "string",
+          "required": true
+        },
+        "locator_strategy": {
+          "type": "string",
+          "required": true
+        },
+        "text": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "swipe",
+      "description": "Swipe from one point to another",
+      "parameters": {
+        "start_x": {"type": "integer", "required": true},
+        "start_y": {"type": "integer", "required": true},
+        "end_x": {"type": "integer", "required": true},
+        "end_y": {"type": "integer", "required": true},
+        "duration": {"type": "integer", "required": false, "default": 1000}
+      }
+    },
+    {
+      "name": "double_click_element",
+      "description": "Double click/tap an element"
+    },
+    {
+      "name": "scroll_to_element",
+      "description": "Scroll to make an element visible"
+    },
+    {
+      "name": "tap_coordinates",
+      "description": "Tap at specific screen coordinates"
+    },
+    {
+      "name": "pinch_zoom",
+      "description": "Perform pinch zoom gesture"
+    },
+    {
+      "name": "hide_keyboard",
+      "description": "Hide the on-screen keyboard"
+    },
+    {
+      "name": "switch_element_to_on",
+      "description": "Switch a toggle element to on state"
+    },
+    {
+      "name": "switch_element_to_off",
+      "description": "Switch a toggle element to off state"
+    },
+    {
+      "name": "get_page_source_tree",
+      "description": "Get the current page UI tree"
+    },
+    {
+      "name": "verify_visual_task",
+      "description": "Verify visual content using AI"
+    },
+    {
+      "name": "take_screenshot",
+      "description": "Take a screenshot and save to file"
+    },
+    {
+      "name": "dismiss_alert",
+      "description": "Dismiss an alert dialog (iOS)"
+    },
+    {
+      "name": "directly_send_keys",
+      "description": "Send keys directly via iOS script"
+    },
+    {
+      "name": "long_press_element",
+      "description": "Long press on an element"
+    },
+    {
+      "name": "press_key",
+      "description": "Press a keyboard key (Android)"
+    }
+  ],
+  "dependencies": {
+    "appium": ">=2.0.0",
+    "selenium": ">=4.0.0"
+  },
+  "config_schema": {
+    "server_url": {
+      "type": "string",
+      "required": true,
+      "description": "Appium server URL"
+    },
+    "bundleId": {
+      "type": "string",
+      "required": false,
+      "description": "iOS bundle ID"
+    },
+    "appPackage": {
+      "type": "string",
+      "required": false,
+      "description": "Android app package"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "name": "desktop_mac_skill",
+  "version": "1.0.0",
+  "description": "Desktop Mac testing skill using Appium Mac2 driver for native macOS application automation",
+  "platforms": ["mac"],
+  "capabilities": [
+    "app_launch",
+    "app_close",
+    "element_interaction",
+    "keyboard_input",
+    "mouse_operations",
+    "drag_drop",
+    "visual_verification"
+  ],
+  "tools": [
+    {
+      "name": "app_launch",
+      "description": "Launch the Mac application"
+    },
+    {
+      "name": "app_close",
+      "description": "Close the Mac application"
+    },
+    {
+      "name": "session_close",
+      "description": "Close the Appium driver session"
+    },
+    {
+      "name": "click_element",
+      "description": "Click on a native Mac UI element with smart menu filtering"
+    },
+    {
+      "name": "right_click_element",
+      "description": "Right-click on a Mac UI element"
+    },
+    {
+      "name": "send_keys_on_macos",
+      "description": "Enter text in an element using macOS script"
+    },
+    {
+      "name": "directly_send_keys",
+      "description": "Send keys directly to the focused element"
+    },
+    {
+      "name": "press_key",
+      "description": "Press a key or key combination"
+    },
+    {
+      "name": "drag_element_to_element",
+      "description": "Drag from one element to another"
+    },
+    {
+      "name": "mouse_hover",
+      "description": "Hover mouse over an element"
+    },
+    {
+      "name": "verify_elements_order",
+      "description": "Verify elements appear in specified order"
+    },
+    {
+      "name": "get_page_source_tree",
+      "description": "Get the current page UI tree"
+    },
+    {
+      "name": "verify_visual_task",
+      "description": "Verify visual content using AI"
+    }
+  ],
+  "dependencies": {
+    "appium": ">=2.0.0",
+    "selenium": ">=4.0.0"
+  },
+  "config_schema": {
+    "server_url": {
+      "type": "string",
+      "required": true,
+      "description": "Appium server URL"
+    },
+    "bundleId": {
+      "type": "string",
+      "required": true,
+      "description": "macOS app bundle ID"
+    }
+  }
+}

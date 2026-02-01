@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-config.json",
+  "mcpServers": {
+    "autogenesis": {
+      "command": "python",
+      "args": ["${workspaceFolder}/servers/unified_mcp_server.py", "--transport", "stdio"],
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "AUTOGENESIS_CONFIG": "${workspaceFolder}/conf/autogenesis_conf.json"
+      }
+    }
+  }
+}

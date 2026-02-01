@@ -1,0 +1,90 @@
+{
+  "name": "desktop_windows_skill",
+  "version": "1.0.0",
+  "description": "Desktop Windows testing skill using pywinauto for native Windows application automation",
+  "platforms": ["windows"],
+  "capabilities": [
+    "app_launch",
+    "app_close",
+    "element_interaction",
+    "keyboard_input",
+    "mouse_operations",
+    "visual_verification",
+    "screenshot"
+  ],
+  "tools": [
+    {
+      "name": "app_launch",
+      "description": "Launch the Windows desktop application"
+    },
+    {
+      "name": "app_close",
+      "description": "Close the Windows desktop application"
+    },
+    {
+      "name": "app_screenshot",
+      "description": "Take a screenshot of the main window"
+    },
+    {
+      "name": "element_click",
+      "description": "Click on a native UI element",
+      "parameters": {
+        "name": {"type": "string", "required": true},
+        "control_type": {"type": "string", "required": true},
+        "automation_id": {"type": "string", "required": false},
+        "control_idx": {"type": "integer", "required": false, "default": 1}
+      }
+    },
+    {
+      "name": "right_click",
+      "description": "Right-click on a native UI element"
+    },
+    {
+      "name": "send_keystrokes",
+      "description": "Send keyboard keystrokes to the active window"
+    },
+    {
+      "name": "enter_text",
+      "description": "Enter text into an editable field"
+    },
+    {
+      "name": "open_folder",
+      "description": "Open/expand a folder or TreeItem"
+    },
+    {
+      "name": "select_item",
+      "description": "Select an item from a list or menu"
+    },
+    {
+      "name": "verify_visual_task",
+      "description": "Verify visual content using AI"
+    }
+  ],
+  "dependencies": {
+    "pywinauto": ">=0.6.8",
+    "psutil": ">=5.0.0",
+    "Pillow": ">=8.0.0"
+  },
+  "config_schema": {
+    "exe": {
+      "type": "string",
+      "required": true,
+      "description": "Path to the application executable"
+    },
+    "window_title_re": {
+      "type": "string",
+      "required": true,
+      "description": "Regex pattern for the main window title"
+    },
+    "app_name": {
+      "type": "string",
+      "required": false,
+      "description": "Display name of the application"
+    },
+    "launch_args": {
+      "type": "array",
+      "required": false,
+      "description": "Command line arguments for launching"
+    }
+  }
+}

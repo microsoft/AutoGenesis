@@ -1,4 +1,18 @@
 # # -*- coding: utf-8 -*-
+"""
+DEPRECATED: This server is deprecated and will be removed in a future version.
+
+Please use the unified MCP server instead:
+    python servers/unified_mcp_server.py --platform windows --transport stdio
+
+The unified server provides:
+- All mobile (iOS/Android), Windows, and Mac testing capabilities
+- Unified configuration
+- Better integration with Claude Code and VS Code
+
+For migration guide, see: docs/MIGRATION.md
+"""
+
 import os
 import logging
 import json
@@ -6,7 +20,23 @@ import sys
 import argparse
 import anyio
 import asyncio
+import warnings
 from anyio import BrokenResourceError
+
+# Show deprecation warning
+warnings.warn(
+    "pywinauto-mcp-server/simple_server.py is deprecated. "
+    "Use servers/unified_mcp_server.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+print("\n" + "="*70)
+print("WARNING: This server is DEPRECATED")
+print("="*70)
+print("Please use the unified MCP server instead:")
+print("  python servers/unified_mcp_server.py --platform windows --transport stdio")
+print("="*70 + "\n")
+
 from mcp.server.fastmcp import FastMCP
 from pathlib import Path
 from app_session import AppSessionManager
