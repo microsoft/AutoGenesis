@@ -106,8 +106,8 @@ export async function executeInTerminal(
             // Give more time for installation to complete before checking
             await new Promise((resolve) => setTimeout(resolve, 15000)); // Wait 15 seconds initially
 
-            // Retry success check with exponential backoff for up to the timeout duration
-            const maxRetries = Math.floor(timeout / 30000); // Check every 30 seconds
+            // Retry success check with limited retries (max 2 attempts after initial check)
+            const maxRetries = 2; // Only retry 2 times to avoid excessive waiting on MacOS when auto resolve fails
             let retryCount = 0;
 
             const checkWithRetry = async (): Promise<void> => {

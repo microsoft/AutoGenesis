@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 import { registerTools } from "./tools/index";
 import {
-  activateCucumberDebug,
-  deactivateCucumberDebug,
-} from "./cucumber-debug";
+  activateBddFeatureSupport,
+  deactivateBddFeatureSupport,
+} from "./bdd-feature-support";
 import { GlobalState } from "./globalState";
 import {
   SetupWebViewProvider,
@@ -26,8 +26,8 @@ export async function activate(context: vscode.ExtensionContext) {
   // Initialize global state
   GlobalState.initialize(context);
 
-  // Activate Cucumber/Gherkin debugging functionality
-  activateCucumberDebug(context);
+  // Activate BDD Feature Support
+  activateBddFeatureSupport(context);
 
   // Register Copilot language model tools
   registerTools(context);
@@ -65,7 +65,7 @@ async function checkForMcpServerUpdates(
     const serverPaths = new Map<string, string>();
 
     // Check both possible server types
-    const autoMcpPath = path.join(extensionStoragePath, "auto-mcp-demo");
+    const autoMcpPath = path.join(extensionStoragePath, "pywinauto-mcp-server");
     const appiumMcpPath = path.join(extensionStoragePath, "appium-mcp-server");
 
     if (fs.existsSync(autoMcpPath)) {
@@ -113,8 +113,8 @@ async function checkForMcpServerUpdates(
  * Called when the extension is deactivated by VS Code
  */
 export function deactivate() {
-  // Clean up Cucumber debugging resources
-  if (deactivateCucumberDebug) {
-    deactivateCucumberDebug();
+  // Clean up BDD Feature Support resources
+  if (deactivateBddFeatureSupport) {
+    deactivateBddFeatureSupport();
   }
 }

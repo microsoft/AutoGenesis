@@ -1,3 +1,7 @@
+/**
+ * MCP Server Manager
+ */
+
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
@@ -46,7 +50,7 @@ export class McpServerManager {
     const projectBaseName = path.basename(projectPath);
     const serverTypeSuffix =
       serverType === "windows-browser" ? "windows" : "appium";
-    const serverName = `bdd-auto-mcp-${projectBaseName}-${serverTypeSuffix}`;
+    const serverName = `bdd-pywinauto-mcp-${projectBaseName}-${serverTypeSuffix}`;
     console.log(`Setting up MCP server: ${serverName}`);
 
     // Use extension's storage path instead of project path to keep MCP server hidden from users
@@ -628,6 +632,40 @@ export class McpServerManager {
       return {};
     }
   }
+
+
+  private async extractPywinautoConfig(serverPath: string): Promise<any> {
+    try {
+      const confJsonPath = path.join(serverPath, "conf", "pywinauto_conf.json");
+
+      if (!fs.existsSync(confJsonPath)) {
+        console.warn(`conf/pywinauto_conf.json not found at: ${confJsonPath}`);
+        return {};
+      }
+
+      const content = fs.readFileSync(confJsonPath, "utf8");
+      try {
+        const pywinautoConf = JSON.parse(content);
+
+        console.log(
+          "Successfully extracted and processed PYWINAUTO_CONFIGS from conf/pywinauto_conf.json"
+        );
+        return pywinautoConf.PYWINAUTO_CONFIG;
+      } catch (parseError) {
+        console.warn(
+          "Failed to parse conf/pywinauto_conf.json as JSON:",
+          parseError
+        );
+        return {};
+      }
+    } catch (error) {
+      console.error(
+        "Error extracting PYWINAUTO_CONFIG from conf/pywinauto_conf.json:",
+        error
+      );
+      return {};
+    }
+  }
   /**
    * Ensure bdd_ai_conf.json exists in the project directory.
    * If it doesn't exist, create it with default values
@@ -655,6 +693,15 @@ export class McpServerManager {
       if (Object.keys(appiumConfigs).length > 0) {
         defaultConfig.APPIUM_DRIVER_CONFIGS = appiumConfigs;
       }
+    }
+
+    // If this is a windows-browser server, add PYWINAUTO_CONFIG
+    if (serverConfig && serverConfig.serverType === "windows-browser") {
+      // For Windows browser automation, set BROWSER_TYPE based on serverConfig.browser
+      const pywinautoConfig = await this.extractPywinautoConfig(
+        serverConfig.serverPath
+      );
+      defaultConfig.PYWINAUTO_CONFIG = pywinautoConfig;
     }
 
     try {
@@ -704,14 +751,14 @@ export class McpServerManager {
   private getSourceDirectoryForServerType(serverType: string): string {
     switch (serverType) {
       case "windows-browser":
-        return "auto-mcp-demo";
+        return "pywinauto-mcp-server";
       case "appium-common":
         return "appium-mcp-server";
       default:
         console.warn(
-          `Unknown server type: ${serverType}, using default auto-mcp-demo`
+          `Unknown server type: ${serverType}, using default pywinauto-mcp-server`
         );
-        return "auto-mcp-demo";
+        return "pywinauto-mcp-server";
     }
   }
 
@@ -728,12 +775,12 @@ export class McpServerManager {
     // Get the script file and additional args based on server type
     switch (serverConfig.serverType) {
       case "windows-browser":
-        // For Windows browser automation (auto-mcp-demo)
+        // For Windows browser automation (pywinauto-mcp-server)
         const browserArgs = [
           path.join(serverConfig.serverPath, "simple_server.py"),
           "--transport",
           "stdio",
-          "--browser",
+          "--app",
           serverConfig.browser,
         ];
         if (confJsonPath) {

@@ -200,7 +200,7 @@ export async function checkCommandExists(command: string): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
     const checkCmd = Platform.getWhichCommand() + ` ${command}`;
 
-    cp.exec(checkCmd, (error) => {
+    cp.exec(checkCmd, { timeout: 5000 }, (error) => {
       if (!error) {
         // Command found in PATH
         resolve(true);
@@ -211,7 +211,7 @@ export async function checkCommandExists(command: string): Promise<boolean> {
       if (command === "keyring") {
         try {
           // Check if keyring is installed as a UV tool
-          cp.exec("uv tool list", (toolError, stdout) => {
+          cp.exec("uv tool list", { timeout: 5000 }, (toolError, stdout) => {
             if (toolError) {
               resolve(false);
             } else {

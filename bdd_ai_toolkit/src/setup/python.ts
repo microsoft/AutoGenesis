@@ -174,9 +174,21 @@ export async function checkPythonInstallation(): Promise<PythonCheckResult> {
 
           // Add python3 executable paths from each version directory
           for (const pythonDir of pythonDirs) {
-            const pythonPath = path.join(optDir, pythonDir, "bin", "python3");
+            const binDir = path.join(optDir, pythonDir, "bin");
+            
+            // Check for generic python3
+            const pythonPath = path.join(binDir, "python3");
             if (fs.existsSync(pythonPath)) {
               homebrewPythonPaths.push(pythonPath);
+            }
+
+            // Check for version-specific executable (e.g., python3.13)
+            // pythonDir format is verified by the filter above: python@X.Y
+            const version = pythonDir.split('@')[1];
+            const specificPythonPath = path.join(binDir, `python${version}`);
+            
+            if (fs.existsSync(specificPythonPath) && specificPythonPath !== pythonPath) {
+              homebrewPythonPaths.push(specificPythonPath);
             }
           }
         }
@@ -492,114 +504,45 @@ export async function handlePythonInstallation(
       if (brewAvailable || (await checkCommandExists("brew"))) {
         console.log("Installing Python using Homebrew...");
         vscode.window.showInformationMessage(
-          "Installing Python 3.13.3 using Homebrew..."
+          "Installing Python 3.13.3 using Homebrew. This may take a few minutes..."
         );
 
         const { executeInTerminal } = await import("./terminal");
-        // Chain the commands to install Python 3.13.3 and create necessary symlinks
-        const installCommands = [
-          "brew install python@3.13",
-          'echo "Setting up Python 3.13 as the default Python version..."',
-          "brew link --force python@3.13",
-          'echo "PATH is now being updated to include Python 3.13..."',
-          'export PATH="/usr/local/opt/python@3.13/bin:$PATH"',
-          'echo "Verifying Python version after installation:"',
-          "python3 --version",
-          'echo "Verifying pip3 version after installation:"',
-          "pip3 --version",
-        ].join(" && ");
-
+        
+        // Use executeInTerminal with a compound command to ensure all steps complete
+        const installCommand = `
+brew install python@3.13 && \
+echo "Setting up Python 3.13..." && \
+echo "Updating PATH to include Python 3.13..." && \
+export PATH="/opt/homebrew/opt/python@3.13/bin:/usr/local/opt/python@3.13/bin:$PATH" && \
+grep -q "python@3.13" ~/.zshrc || echo 'export PATH="/opt/homebrew/opt/python@3.13/bin:$PATH"' >> ~/.zshrc && \
+echo "Verifying Python version after installation:" && \
+python3 --version && \
+echo "Verifying pip3 version after installation:" && \
+pip3 --version
+        `.trim();
+        
+        // Execute with a success check function
         pythonInstallSuccess = await executeInTerminal(
-          installCommands,
-          "Python Installation",
+          installCommand,
+          "Installing Python",
           {
-            useExistingTerminal: terminal, // Use the same terminal that was passed in
+            useExistingTerminal: terminal,
             commandSuccessCheck: async () => {
-              console.log(
-                "Running post-installation success check for Python..."
-              );
-              // Wait a bit for installation to complete
-              await new Promise((resolve) => setTimeout(resolve, 10000));
-
-              // Try to force a refresh of the environment variables
-              try {
-                if (Platform.isMacOS) {
-                  terminal.sendText(
-                    "source ~/.zshrc || source ~/.bash_profile || source ~/.bashrc || true"
-                  );
-                  await new Promise((resolve) => setTimeout(resolve, 1000));
-                }
-              } catch (err) {
-                console.log("Error refreshing shell environment:", err);
+              console.log("Checking if Python installation succeeded...");
+              
+              // Check if Python is now available and compatible
+              const checkResult = await checkPythonInstallation();
+              if (checkResult.isValid) {
+                console.log(`✅ Python ${checkResult.version} installed successfully`);
+                return true;
               }
-
-              const updatedPythonCheck = await checkPythonInstallation();
-              console.log(
-                `Python availability after installation: ${updatedPythonCheck.isValid}`
-              );
-
-              if (updatedPythonCheck.isValid) {
-                console.log(
-                  `✅ Python ${updatedPythonCheck.version} installation verification successful`
-                );
-              } else {
-                console.log(
-                  "❌ Python installation verification failed - checking other paths"
-                );
-
-                // If the standard check failed, try checking for Python 3.10 in Homebrew paths directly
-                try {
-                  const brewPythonVersion = await new Promise<string | null>(
-                    (resolve) => {
-                      cp.exec(
-                        "/usr/local/opt/python@3.10/bin/python3 --version || /opt/homebrew/opt/python@3.10/bin/python3 --version",
-                        (error, stdout, stderr) => {
-                          if (error) {
-                            console.log(
-                              "Error checking brew Python path:",
-                              error
-                            );
-                            resolve(null);
-                            return;
-                          }
-                          const output = stdout || stderr;
-                          const versionMatch = output.match(
-                            /Python (\d+\.\d+\.\d+)/
-                          );
-                          if (versionMatch) {
-                            console.log(
-                              `Found Homebrew Python ${versionMatch[1]} at alternate location`
-                            );
-                            resolve(versionMatch[1]);
-                          } else {
-                            resolve(null);
-                          }
-                        }
-                      );
-                    }
-                  );
-
-                  if (brewPythonVersion) {
-                    console.log(
-                      `✅ Found compatible Python ${brewPythonVersion} in Homebrew path, updating PATH information...`
-                    );
-
-                    // Note: Success message will be shown by SetupWebViewProvider
-                    // Don't show additional messages here to avoid duplication
-                    return true;
-                  }
-                } catch (err) {
-                  console.log(
-                    "Error checking alternate Python locations:",
-                    err
-                  );
-                }
-              }
-
-              return updatedPythonCheck.isValid;
+              
+              console.log("Python check failed, will retry...");
+              return false;
             },
-            autoExit: false, // Don't exit automatically so we can use the same terminal for fallback
-            timeout: 600000, // 10 minutes timeout for Python installation
+            autoExit: false,
+            timeout: 600000, // 10 minutes for brew install
           }
         );
 
@@ -618,61 +561,6 @@ export async function handlePythonInstallation(
 
     // Only proceed with manual guidance if auto-install failed or not available
     if (!pythonInstallSuccess) {
-      // Fall back to providing manual guidance (original behavior)
-      console.log("Providing manual Python installation guidance...");
-
-      // Show detailed guidance in terminal - reuse the same terminal that was passed in
-      terminal.show();
-      terminal.sendText(
-        'echo "=============================================="'
-      );
-      terminal.sendText('echo "   BDD AI Toolkit - Python Setup Required   "');
-      terminal.sendText(
-        'echo "=============================================="'
-      );
-      terminal.sendText('echo ""');
-
-      // Show current status with detailed error
-      if (pythonCheck.detailedError) {
-        terminal.sendText(
-          `echo "Current Status: ${pythonCheck.detailedError}"`
-        );
-      } else {
-        terminal.sendText(
-          `echo "Current Status: ${pythonCheck.error || "Python >= 3.10 not found"}"`
-        );
-      }
-      terminal.sendText('echo ""');
-
-      // Show found versions if any
-      if (pythonCheck.foundVersions && pythonCheck.foundVersions.length > 0) {
-        terminal.sendText('echo "Found Python Installations:"');
-        pythonCheck.foundVersions.forEach((v) => {
-          const status = v.isCompatible ? "✅ Compatible" : "❌ Too Old";
-          terminal.sendText(
-            `echo "  • ${v.command}: Python ${v.version} - ${status}"`
-          );
-        });
-        terminal.sendText('echo ""');
-      }
-
-      // Display installation guidance
-      if (pythonCheck.installationGuidance) {
-        const guidanceLines = pythonCheck.installationGuidance.split("\n");
-        guidanceLines.forEach((line) => {
-          if (line.trim()) {
-            terminal.sendText(`echo "${line}"`);
-          } else {
-            terminal.sendText('echo ""');
-          }
-        });
-      }
-
-      terminal.sendText('echo ""');
-      terminal.sendText(
-        'echo "=============================================="'
-      );
-
       // Show user-friendly message with action buttons
       const actionButton = Platform.isWindows
         ? "Open Python Download"
@@ -715,9 +603,7 @@ ${
     .join("\n") || "None found"
 }
 
-Required: Python >= 3.10
-
-Installation guidance has been provided in the terminal.`;
+Required: Python >= 3.10`;
 
         vscode.window.showInformationMessage(detailMessage, { modal: true });
       }

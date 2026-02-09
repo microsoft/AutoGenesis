@@ -1,3 +1,7 @@
+/**
+ * Setup WebView Provider
+ */
+
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
@@ -38,6 +42,7 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "bdd-ai-toolkit-extension.setupView";
   private _view?: vscode.WebviewView;
   private _isAutoResolveInProgress = false; // Track if auto-resolve is currently running
+  private _isCheckingEnvironment = false; // Track if environment check is currently running
 
   constructor(
     private readonly _extensionUri: vscode.Uri,
@@ -65,16 +70,19 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
       this._extensionUri
     );
 
-    // Check the environment status when view is loaded
-    this.checkEnvironmentStatus(webviewView);
-
     // Also check MCP status when view becomes visible again
     webviewView.onDidChangeVisibility(() => {
       if (webviewView.visible) {
-        console.log("Setup webview became visible, checking MCP status...");
+        console.log("Setup webview became visible, checking environment status...");
         this.checkEnvironmentStatus(webviewView);
       }
     });
+
+    // Check the environment status when view is loaded
+    // Use setTimeout to ensure HTML is fully rendered and avoid blocking UI
+    setTimeout(() => {
+      this.checkEnvironmentStatus(webviewView);
+    }, 100);
 
     // Inform the webview about the current platform
     webviewView.webview.postMessage({
@@ -217,35 +225,51 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
   ): Promise<void> {
     // If auto-resolve is in progress and this is an automatic check, skip to avoid UI interference
     if (this._isAutoResolveInProgress && source === "auto") {
+      console.log("Skipping environment check: auto-resolve in progress");
       return;
     }
 
-    // On Windows, refresh environment variables before checking to ensure we pick up new installations
-    if (Platform.isWindows) {
-      await this.refreshEnvironmentVariables();
+    // Prevent concurrent environment checks to avoid resource contention
+    if (this._isCheckingEnvironment) {
+      console.log("Skipping environment check: already checking");
+      return;
     }
 
-    // Use the simplified checkEnvironment utility directly
-    const envStatus = await checkEnvironment();
+    try {
+      this._isCheckingEnvironment = true;
+      console.log(`Starting environment check (source: ${source})`);
 
-    // Check MCP server status
-    const mcpStatus = await this.checkMcpServerStatus();
+      // On Windows, refresh environment variables before checking to ensure we pick up new installations
+      if (Platform.isWindows) {
+        await this.refreshEnvironmentVariables();
+      }
 
-    // Update sidebar badge based on MCP status
-    this.updateSidebarBadge(webviewView, mcpStatus);
+      // Use the simplified checkEnvironment utility directly
+      const envStatus = await checkEnvironment();
 
-    // Send environment status to the webview
-    webviewView.webview.postMessage({
-      command: "environmentStatus",
-      environmentStatus: envStatus,
-      source: source, // Include source information for button state management
-    });
+      // Check MCP server status
+      const mcpStatus = await this.checkMcpServerStatus();
 
-    // Send MCP server status separately
-    webviewView.webview.postMessage({
-      command: "mcpStatusUpdate",
-      mcpServerStatus: mcpStatus,
-    });
+      // Update sidebar badge based on MCP status
+      this.updateSidebarBadge(webviewView, mcpStatus);
+
+      // Send environment status to the webview
+      webviewView.webview.postMessage({
+        command: "environmentStatus",
+        environmentStatus: envStatus,
+        source: source, // Include source information for button state management
+      });
+
+      // Send MCP server status separately
+      webviewView.webview.postMessage({
+        command: "mcpStatusUpdate",
+        mcpServerStatus: mcpStatus,
+      });
+
+      console.log(`Environment check completed (source: ${source})`);
+    } finally {
+      this._isCheckingEnvironment = false;
+    }
   }
 
   /**
@@ -277,8 +301,9 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
     // Set auto-resolve in progress flag
     this._isAutoResolveInProgress = true;
 
-    // First check current status to determine what needs to be fixed
-    const envStatus = await checkEnvironment();
+    try {
+      // First check current status to determine what needs to be fixed
+      const envStatus = await checkEnvironment();
 
     // Determine which tools can be auto-resolved based on platform
     const autoResolveActions = [];
@@ -386,8 +411,11 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
 
           // Dispose the terminal after installation to keep things clean
           setTimeout(() => {
-            terminal.dispose();
-          }, 2000); // Give a moment for any final output to be visible
+            if (!terminal.exitStatus) {
+              console.log(`Disposing terminal for ${action}`);
+              terminal.dispose();
+            }
+          }, 4000); // Give more time for installation to complete, especially for Python
 
           if (!success) {
             vscode.window.showErrorMessage(
@@ -413,8 +441,11 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
         } catch (error) {
           // Dispose terminal on error as well
           setTimeout(() => {
-            terminal.dispose();
-          }, 2000);
+            if (!terminal.exitStatus) {
+              console.log(`Disposing terminal for ${action} after error`);
+              terminal.dispose();
+            }
+          }, 4000); // Give the same delay as success case
 
           webviewView.webview.postMessage({
             command: "installationStatus",
@@ -427,10 +458,33 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
         }
       }
 
-      // Note: Automatically check environment status after resolution attempts complete
+    } else {
+      // No issues to auto-resolve
+      if (Platform.isMacOS) {
+        vscode.window.showInformationMessage(
+          "Environment is already set up correctly!"
+        );
+      } else {
+        vscode.window.showInformationMessage(
+          "Only manual installation issues found. Please install the required tools manually."
+        );
+      }
+    }
+    } catch (error) {
+      console.error("Error in resolveEnvironmentIssues:", error);
+      vscode.window.showErrorMessage(
+        `Error resolving environment issues: ${error instanceof Error ? error.message : String(error)}`
+      );
+    } finally {
+      // Always schedule environment recheck and clear flag, even if there were errors
+      // Use different delays for different platforms:
+      // - macOS: 8 seconds (Python installation via Homebrew needs more time)
+      // - Windows: 5 seconds (only UV/CLI, environment variables already refreshed)
+      const recheckDelay = Platform.isMacOS ? 8000 : 5000;
+      
       setTimeout(() => {
         console.log(
-          "Auto-checking environment status after auto-resolution..."
+          `Auto-checking environment status after auto-resolution (delay: ${recheckDelay}ms)...`
         );
 
         // Clear auto-resolve in progress flag
@@ -442,21 +496,8 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
         });
 
         // Then trigger environment check
-        this.checkEnvironmentStatus(webviewView, "autoResolveComplete"); // Mark as auto-resolve completion
-      }, 3000); // Reduced to 3 seconds as requested
-    } else {
-      // No issues to auto-resolve
-      this._isAutoResolveInProgress = false; // Clear flag immediately
-
-      if (Platform.isMacOS) {
-        vscode.window.showInformationMessage(
-          "Environment is already set up correctly!"
-        );
-      } else {
-        vscode.window.showInformationMessage(
-          "Only manual installation issues found. Please install the required tools manually."
-        );
-      }
+        this.checkEnvironmentStatus(webviewView, "autoResolveComplete");
+      }, recheckDelay);
     }
   }
 
@@ -489,8 +530,8 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
         };
       } // Look for BDD MCP server configurations (check both windows and appium servers)
       const projectBaseName = path.basename(projectPath);
-      const windowsServerName = `bdd-auto-mcp-${projectBaseName}-windows`;
-      const appiumServerName = `bdd-auto-mcp-${projectBaseName}-appium`;
+      const windowsServerName = `bdd-pywinauto-mcp-${projectBaseName}-windows`;
+      const appiumServerName = `bdd-pywinauto-mcp-${projectBaseName}-appium`;
 
       const windowsServerConfig = mcpConfig.servers[windowsServerName];
       const appiumServerConfig = mcpConfig.servers[appiumServerName];
@@ -510,7 +551,7 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
       // Check for both server types
       const autoMcpServerPath = path.join(
         extensionStoragePath,
-        "auto-mcp-demo"
+        "pywinauto-mcp-server"
       );
       const appiumMcpServerPath = path.join(
         extensionStoragePath,
@@ -815,7 +856,7 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
         const command =
           "powershell -Command \"Get-ItemProperty -Path 'HKCU:\\Environment' -Name PATH -ErrorAction SilentlyContinue | Select-Object -ExpandProperty PATH\"";
 
-        cp.exec(command, (error, stdout, stderr) => {
+        cp.exec(command, { timeout: 10000 }, (error, stdout, stderr) => {
           if (error) {
             console.log(
               "Could not read user PATH from registry:",
@@ -833,7 +874,7 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
         const command =
           "powershell -Command \"Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment' -Name PATH -ErrorAction SilentlyContinue | Select-Object -ExpandProperty PATH\"";
 
-        cp.exec(command, (error, stdout, stderr) => {
+        cp.exec(command, { timeout: 10000 }, (error, stdout, stderr) => {
           if (error) {
             console.log(
               "Could not read system PATH from registry:",
