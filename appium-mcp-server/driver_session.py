@@ -20,6 +20,7 @@ class DriverSessionManager:
         if device not in driver_configs:
             raise ValueError(f"Unsupported device: {device}")
         self.device = device
+        self.driver_configs = driver_configs  # Store all configs
         self.config = driver_configs[device]
         self.gen_code_id = None
         self.gen_code_cache = []
@@ -28,6 +29,21 @@ class DriverSessionManager:
         self._driver = None
         self.server_url = self.config["server_url"]
         self.is_executing = False
+
+    def update_config(self, new_driver_configs: dict):
+        """Update configuration dynamically without restarting"""
+        logger.info(f"Updating configuration for device: {self.device}")
+
+        if self.device not in new_driver_configs:
+            logger.error(f"Device {self.device} not found in new configuration")
+            return False
+
+        self.driver_configs = new_driver_configs
+        self.config = new_driver_configs[self.device]
+        self.server_url = self.config["server_url"]
+
+        logger.info("Configuration updated successfully. Changes will take effect on next session creation.")
+        return True
 
     def start_tool_execution(self, tool_name):
         if self.is_executing:

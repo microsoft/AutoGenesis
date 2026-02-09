@@ -242,10 +242,6 @@ def before_scenario(context, scenario):
         print(f"Skipping scenario '{scenario.name}' because it is marked as WIP.")
         scenario.skip("Scenario is marked as WIP")
         return
-    
-    if 'fre' in scenario.tags:
-        print(f"Skipping fre scenario '{scenario.name}' because it is marked as FRE.")
-        return
     pass
 
 def after_scenario(context, scenario):
