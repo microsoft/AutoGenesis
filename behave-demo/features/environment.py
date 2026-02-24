@@ -13,14 +13,14 @@ from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client, StdioServerParameters
 from behave.contrib.scenario_autoretry import patch_scenario_with_autoretry
+from applicationinsights import TelemetryClient
 
 
 session_ready = threading.Event()
-TRANSPORT = "sse"  # Default transport method, can be changed to "sse" if needed
+TRANSPORT = "stdio"  # Default transport method, can be changed to "sse" if needed
 
 # Global package variable - loaded from environment
 package = os.environ.get('PACKAGE', 'com.microsoft.emmx.canary')
-current_version = os.environ.get('SOURCE_BUILD_TITLE', '145.0.2254.0')
 
 def load_mcp_config():
     current_dir = pathlib.Path(__file__).parent.parent
@@ -131,7 +131,10 @@ def before_all(context):
         print(f"Package loaded from environment: {package}")
     else:
         print("Warning: 'package' environment variable not set")
-    
+
+    # Initialize Application Insights telemetry client
+    telemetry_client = TelemetryClient('6cfcacca-7f4d-476e-85f4-c184d70ccff9')
+    context.telemetry_client = telemetry_client 
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
     session_ready = threading.Event()
@@ -251,3 +254,15 @@ def after_scenario(context, scenario):
 def before_feature(context, feature):
     for scenario in feature.scenarios:
         patch_scenario_with_autoretry(scenario, max_attempts=2)
+
+def after_step(context, step):
+    if step.status != 'skipped':
+        context.telemetry_client.track_metric(
+            "TestStepExecuted", 1,
+            properties={
+                "Platform": "", 
+                "Status": 'Passed' if step.status == 'passed' else 'Failed',
+                "RunSource": "OpenResource"
+                }
+        )
+        context.telemetry_client.flush()
