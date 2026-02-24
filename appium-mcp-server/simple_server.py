@@ -12,25 +12,15 @@ from tools.android_driver_tool import register_android_driver_tools
 from tools.mac_driver_tool import register_mac_driver_tools
 from tools.gen_code_tool import register_gen_code_tools
 from tools.verify_tools import register_verify_tools
-from utils.logger import log_tool_call
+from tools.config_tool import register_config_tools
+from utils.logger import log_tool_call, get_mcp_logger
+from utils.config_manager import ConfigManager
+
+logger = get_mcp_logger()
 
 settings = {
     "log_level": "DEBUG"
 }
-
-def load_driver_configs(file_path=None):
-    """Load driver configurations from a JSON file."""
-    if file_path is None:
-       file_path = os.path.join(os.path.dirname(__file__), "conf/appium_conf.json")
-
-    if not os.path.exists(file_path):
-       raise FileNotFoundError(f"Driver configuration file not found: {file_path}")
-
-    with open(file_path, 'r') as f:
-        driver_configs = json.load(f)
-        appium_driver_configs = driver_configs.get("APPIUM_DRIVER_CONFIGS", {})
-
-    return appium_driver_configs
 
 # 创建 MCP server
 mcp = FastMCP("appium-mcp-server", log_level="INFO")
@@ -43,27 +33,44 @@ def filter_mcp_lowlevel_logs():
 
 filter_mcp_lowlevel_logs()
 driver_manager = None  # 全局可访问
+config_manager = None  # 全局配置管理器
+
+
+def on_config_change(new_config):
+    """Callback when configuration changes"""
+    global driver_manager
+    if driver_manager:
+        logger.info("Configuration changed, updating driver manager")
+        driver_manager.update_config(new_config)
 
 
 def main():
-    global driver_manager
+    global driver_manager, config_manager
     parser = argparse.ArgumentParser()
     parser.add_argument("--platform", choices=["ios", "android", "mac"], default="ios")
     parser.add_argument("--transport", choices=["stdio", "sse"], default="sse")
     parser.add_argument("--config", type=str, help="Path to config file")
     args = parser.parse_args()
 
-    DRIVER_CONFIGS = load_driver_configs(args.config)
+    # Initialize config manager with file watching
+    config_manager = ConfigManager(args.config, on_config_change=on_config_change)
+    DRIVER_CONFIGS = config_manager.get_config()
+
     if not DRIVER_CONFIGS:
         print("No driver configurations found. Please check your config file.")
         sys.exit(1)
-    
+
     driver_manager = DriverSessionManager(args.platform, driver_configs=DRIVER_CONFIGS)
+
+    # Start watching for config file changes
+    config_manager.start_watching()
+    logger.info("Config file hot-reload enabled")
 
     # register tools
     register_appium_driver_tools(mcp, driver_manager)
     register_gen_code_tools(mcp, driver_manager)
     register_verify_tools(mcp, driver_manager)
+    register_config_tools(mcp, config_manager)  # Register config management tools
 
     if args.platform == "ios":
         register_ios_driver_tools(mcp, driver_manager)
@@ -75,7 +82,12 @@ def main():
         pass
 
     # start MCP server
-    mcp.run(transport=args.transport)
+    try:
+        mcp.run(transport=args.transport)
+    finally:
+        # Cleanup on shutdown
+        if config_manager:
+            config_manager.stop_watching()
 
 
 if __name__ == "__main__":
