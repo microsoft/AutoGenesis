@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  * ScenarioExtractor - Extract scenarios from Feature files
  */

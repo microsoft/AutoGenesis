@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import time
 import json
 from tools.appium_driver_tool import simplify_page_source, get_appium_locator

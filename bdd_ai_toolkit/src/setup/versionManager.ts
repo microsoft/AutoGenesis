@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  * Version Manager
  * Handles extension version tracking and comparison using semantic versioning

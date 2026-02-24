@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import logging
 import time
 from utils.element_util import fill_snapshot, find_element_by_kwargs

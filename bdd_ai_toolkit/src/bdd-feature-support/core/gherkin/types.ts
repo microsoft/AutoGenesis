@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  * Unified Gherkin type definitions
  * This file contains all core data models for Feature file parsing

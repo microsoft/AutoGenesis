@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # # -*- coding: utf-8 -*-
 import json
 import os

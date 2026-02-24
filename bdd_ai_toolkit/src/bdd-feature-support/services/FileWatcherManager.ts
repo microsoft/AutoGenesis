@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  * FileWatcherManager - Centralized file monitoring and coordination
  * Handles all file watching logic and coordinates cache/provider updates

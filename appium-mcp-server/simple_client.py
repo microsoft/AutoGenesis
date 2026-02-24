@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 """MCP HTTP client example using MCP SDK."""
 
 import asyncio

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  * PatternConverter - Convert Behave patterns to JavaScript regex
  */

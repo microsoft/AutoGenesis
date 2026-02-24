@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  * CopilotIntegrationService - Service for integrating with GitHub Copilot
  */

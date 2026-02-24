@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  * UnifiedCacheManager - Unified cache management for all caching needs
  */

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  * Unified Step matching type definitions
  * This file contains all data models for Step implementation matching

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  * Default prompts and templates used throughout the BDD AI Toolkit
  */
