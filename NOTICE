@@ -1,0 +1,225 @@
+NOTICES AND INFORMATION
+=======================
+
+This project incorporates material from third party projects. Microsoft has licensed this third-party code under the project's open source license. The original copyright notices and the licenses under which Microsoft received such third-party code are set forth below. Such licenses and notices are provided for informational purposes only. Microsoft licenses the third-party code to you under the terms of the project's open source license, unless otherwise noted below. The code and libraries listed below may have been modified by Microsoft.
+
+This NOTICE file may not be comprehensive for any given product release. For the most current information, please review the actual dependencies in the repository's package.json and requirements.txt files.
+
+
+THIRD PARTY SOFTWARE NOTICES AND INFORMATION
+=============================================
+
+This project incorporates components from the projects listed below.
+
+
+Python Dependencies (appium-mcp-server/)
+-----------------------------------------
+
+1. psutil
+   License: BSD-3-Clause
+   Copyright: Copyright (c) 2009, Jay Loden, Dave Daeschler, Giampaolo Rodola
+   https://github.com/giampaolo/psutil
+
+2. mcp
+   Version: 1.23.0
+   License: MIT
+   https://github.com/modelcontextprotocol/python-sdk
+
+3. selenium
+   Version: >= 4.0.0
+   License: Apache-2.0
+   Copyright: Copyright 2011-2024 Software Freedom Conservancy
+   https://github.com/SeleniumHQ/selenium
+
+4. appium-python-client
+   Version: >= 2.0.0
+   License: Apache-2.0
+   Copyright: Copyright 2014 Appium Contributors
+   https://github.com/appium/python-client
+
+5. behave
+   Version: 1.2.6
+   License: BSD-2-Clause
+   Copyright: Copyright (c) 2012-2014, Jens Engel; Copyright (c) 2012, Benno Rice
+   https://github.com/behave/behave
+
+6. janus
+   Version: >= 0.6.0
+   License: Apache-2.0
+   Copyright: Copyright 2016-2018 Andrew Svetlov and aio-libs team
+   https://github.com/aio-libs/janus
+
+7. browserstack-sdk
+   Version: 1.23.8
+   License: MIT
+   Copyright: Copyright (c) BrowserStack
+   https://github.com/browserstack/browserstack-sdk
+
+8. langchain
+   Version: >= 0.1.20
+   License: MIT
+   Copyright: Copyright (c) LangChain, Inc.
+   https://github.com/langchain-ai/langchain
+
+9. langchain-openai
+   Version: >= 0.0.8
+   License: MIT
+   Copyright: Copyright (c) LangChain, Inc.
+   https://github.com/langchain-ai/langchain
+
+10. langchain-anthropic
+    Version: >= 0.0.8
+    License: MIT
+    Copyright: Copyright (c) LangChain, Inc.
+    https://github.com/langchain-ai/langchain
+
+11. langchain-google-genai
+    Version: >= 0.0.8
+    License: MIT
+    Copyright: Copyright (c) LangChain, Inc.
+    https://github.com/langchain-ai/langchain
+
+12. google-generativeai
+    Version: >= 0.4.0
+    License: Apache-2.0
+    Copyright: Copyright 2023 Google LLC
+    https://github.com/google/generative-ai-python
+
+13. anthropic
+    Version: >= 0.22.0
+    License: MIT
+    Copyright: Copyright (c) Anthropic, PBC
+    https://github.com/anthropics/anthropic-sdk-python
+
+14. openai
+    Version: >= 1.0.0
+    License: MIT
+    Copyright: Copyright (c) OpenAI
+    https://github.com/openai/openai-python
+
+15. pillow
+    Version: 11.1.0
+    License: HPND
+    Copyright: Copyright © 1997-2011 by Secret Labs AB, Copyright © 1995-2011 by Fredrik Lundh
+    https://github.com/python-pillow/Pillow
+
+16. applicationinsights
+    License: MIT
+    Copyright: Copyright (c) Microsoft Corporation
+    https://github.com/microsoft/ApplicationInsights-Python
+
+17. watchdog
+    Version: >= 3.0.0
+    License: Apache-2.0
+    Copyright: Copyright 2011 Yesudeep Mangalapilly
+    https://github.com/gorakhargosh/watchdog
+
+
+Python Dependencies (pywinauto-mcp-server/)
+--------------------------------------------
+
+18. pywinauto
+    Version: >= 0.6.9
+    License: BSD-3-Clause
+    Copyright: Copyright (c) 2015-2018, pywinauto developers
+    https://github.com/pywinauto/pywinauto
+
+19. playwright
+    License: Apache-2.0
+    Copyright: Copyright (c) Microsoft Corporation
+    https://github.com/microsoft/playwright-python
+
+20. anyio
+    Version: >= 4.9.0
+    License: MIT
+    Copyright: Copyright (c) 2018 Alex Grönholm
+    https://github.com/agronholm/anyio
+
+21. pyautogui
+    Version: >= 0.9.54
+    License: BSD-3-Clause
+    Copyright: Copyright (c) 2014, Al Sweigart
+    https://github.com/asweigart/pyautogui
+
+22. Pympler
+    Version: 1.1
+    License: Apache-2.0
+    Copyright: Copyright 2008-2021 Jean Brouwers, Ludwig Haehne, Robert Schuppenies
+    https://github.com/pympler/pympler
+
+
+Node.js Dependencies (bdd_ai_toolkit/)
+---------------------------------------
+
+23. @vscode/prompt-tsx
+    Version: ^0.3.0-alpha.12
+    License: MIT
+    Copyright: Copyright (c) Microsoft Corporation
+    https://github.com/microsoft/vscode-prompt-tsx
+
+24. adm-zip
+    Version: ^0.5.16
+    License: MIT
+    Copyright: Copyright (c) 2012 Another-D-Mention Software and other contributors
+    https://github.com/cthackers/adm-zip
+
+25. axios
+    Version: ^1.9.0
+    License: MIT
+    Copyright: Copyright (c) 2014-present Matt Zabriskie
+    https://github.com/axios/axios
+
+26. js-yaml
+    Version: ^4.1.0
+    License: MIT
+    Copyright: Copyright (c) 2011-2015 by Vitaly Puzrin
+    https://github.com/nodeca/js-yaml
+
+27. xmind-sdk
+    Version: ^1.2.5
+    License: MIT
+    https://github.com/xmindltd/xmind-sdk-js
+
+28. xml2js
+    Version: ^0.6.2
+    License: MIT
+    Copyright: Copyright 2010, 2011, 2012, 2013. All rights reserved.
+    https://github.com/Leonidas-from-XIV/node-xml2js
+
+29. @playwright/mcp
+    Version: 0.0.40
+    License: Apache-2.0
+    Copyright: Copyright (c) Microsoft Corporation
+    https://github.com/microsoft/playwright
+
+30. @playwright/test
+    Version: ^1.52.0
+    License: Apache-2.0
+    Copyright: Copyright (c) Microsoft Corporation
+    https://github.com/microsoft/playwright
+
+31. typescript
+    Version: ^5.8.3
+    License: Apache-2.0
+    Copyright: Copyright (c) Microsoft Corporation
+    https://github.com/microsoft/TypeScript
+
+32. prettier
+    Version: ^3.5.3
+    License: MIT
+    Copyright: Copyright © James Long and contributors
+    https://github.com/prettier/prettier
+
+
+ADDITIONAL INFORMATION
+======================
+
+The above list includes the primary direct dependencies. Each of these packages may have their own dependencies (transitive dependencies), which are governed by their respective licenses. For a complete list of all dependencies and their licenses, please refer to:
+
+- Python packages: Use `pip show <package-name>` or `pip-licenses` tool
+- Node.js packages: Check `node_modules` directory or use `npm list` command
+
+All third-party software licenses are provided for informational purposes only. Microsoft licenses the third-party software to you under the project's open source license.
+
+
+END OF NOTICES AND INFORMATION
