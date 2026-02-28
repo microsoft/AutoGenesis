@@ -127,11 +127,11 @@ Default startup mode is SSE
 
 #### 5.1 VS Code Configuration
 
-Create or edit `.vscode/settings.json` in your project root:
+Create or edit `.vscode/mcp.json` in your project root:
 
 **Method 1: Using SSE Mode (Server-Sent Events)**
 
-    # Add MCP server configuration to .vscode/settings.json:
+    # Add MCP server configuration to .vscode/mcp.json:
     # {
     #   "github.copilot.chat.mcp.servers": {
     #     "appium-mcp-sse": {
@@ -143,7 +143,7 @@ Create or edit `.vscode/settings.json` in your project root:
 
 **Method 2: Using stdio Mode (Recommended for Local Development)**
 
-    # Add MCP server configuration to .vscode/settings.json:
+    # Add MCP server configuration to .vscode/mcp.json:
     # {
     #   "github.copilot.chat.mcp.servers": {
     #     "appium-mcp-server-stdio": {
