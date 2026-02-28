@@ -65,6 +65,16 @@ Please refer to the appropriate documentation based on your testing platform:
 **Get Started:**
 - See [MOBILE-README.md](MOBILE-README.md) for detailed setup instructions
 
+### 🧩 VS Code Extension (BDD AI Toolkit)
+
+**Features:**
+- AI-powered BDD test recording and one-click replay
+- Natural language to automation code generation
+- GitHub Copilot integration via Model Context Protocol (MCP)
+
+**Get Started:**
+- See [BDD AI Toolkit README](bdd_ai_toolkit/README.md) for detailed setup instructions
+
 ## Quick Links
 
 - [Contributing Guidelines](CONTRIBUTING.md)
