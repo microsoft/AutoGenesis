@@ -90,3 +90,7 @@ configuration:
     role: Read
   - member: v-chenyshen
     role: Read
+  - member: v-zexuewang
+    role: Read
+  - member: v-shengnliu
+    role: Read
