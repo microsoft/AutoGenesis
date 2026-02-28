@@ -406,6 +406,7 @@ def register_common_tools(mcp, app_manager):
                     control_type,
                     automation_id=automation_id,
                     control_idx=control_idx,
+                    class_name=class_name,
                     parent_name=parent_name,
                     parent_control_type=parent_control_type,
                     parent_automation_id=parent_automation_id,
