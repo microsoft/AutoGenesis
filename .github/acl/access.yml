@@ -88,3 +88,5 @@ configuration:
     role: Read
   - member: v-huizhang
     role: Read
+  - member: v-chenyshen
+    role: Read
