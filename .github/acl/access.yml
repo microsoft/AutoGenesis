@@ -96,3 +96,7 @@ configuration:
     role: Read
   - member: v-xianmyang
     role: Read
+  - member: v-baji
+    role: Read
+  - member: v-siyudong
+    role: Read
