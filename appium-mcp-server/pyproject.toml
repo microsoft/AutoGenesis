@@ -30,21 +30,9 @@ dependencies = [
     "watchdog>=3.0.0",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "black",
-    "flake8", 
-    "mypy",
-]
-
-[tool.setuptools]
-py-modules = ["simple_server", "simple_client", "driver_session"]
-
 [tool.setuptools.packages.find]
-where = ["."]
 include = ["utils*", "tools*", "llm*"]
-exclude = ["logs*", "conf*", "__pycache__*", "*.pyc"]
+exclude = ["logs*", "conf*"]
 
 [tool.uv]
 dev-dependencies = [
