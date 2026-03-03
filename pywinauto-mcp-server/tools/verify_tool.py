@@ -24,12 +24,12 @@ def register_verify_tools(mcp, app_manager):
     async def verify_element_exists(
         caller: str,
         control_framework: str,
-        element_name: str,
+        name: str,
         control_type: str,
         automation_id: str = "",
         class_name: str = "",
         control_idx: int = 1,
-        parent_element_name: str = "",
+        parent_name: str = "",
         parent_control_type: str = "",
         parent_automation_id: str = "",
         main_window_type: str = "",
@@ -48,13 +48,13 @@ def register_verify_tools(mcp, app_manager):
                 Available options:
                 - 'pywinauto': Use the pywinauto framework to locate and control native desktop UI elements.
                 This parameter determines which part of the snapshot will be used for element interaction.
-            element_name: title of the control to search for.
+            name: title of the control to search for.
             control_type: The type/role of control, **MUST be extracted from the UI snapshot/element information, do NOT assume based on content type**.
             automation_id: Optional automation ID of the element
             class_name: Optional class name of the element, extract from the class_name.
             control_idx: Element index to select when multiple elements match (1-based).
                 Default value 1.
-            parent_element_name: The exact title/name of the parent element
+            parent_name: The exact title/name of the parent element
             parent_control_type: The type/role of the parent control
             parent_automation_id: The exact automation_id of the parent control
             main_window_type: Type of the main window. Default to "".
@@ -72,12 +72,12 @@ def register_verify_tools(mcp, app_manager):
             if control_framework == "pywinauto":
                 element, exists, search_kwargs, parent_search_kwargs = await find_element_by_kwargs(
                     app_manager,
-                    element_name,
+                    name,
                     control_type,
                     automation_id=automation_id,
                     class_name=class_name,
                     control_idx=control_idx,
-                    parent_name=parent_element_name,
+                    parent_name=parent_name,
                     parent_control_type=parent_control_type,
                     parent_automation_id=parent_automation_id,
                     timeout=timeout,
@@ -100,7 +100,7 @@ def register_verify_tools(mcp, app_manager):
         except Exception as e:
             resp["status"] = "error"
             resp["error"] = repr(e)
-            logger.error(f"Error in verify_element_exists for '{element_name}': {e}")
+            logger.error(f"Error in verify_element_exists for '{name}': {e}")
 
         return format_tool_response(resp)
 
@@ -110,11 +110,11 @@ def register_verify_tools(mcp, app_manager):
     async def verify_element_not_exist(
         caller: str,
         control_framework: str,
-        element_name: str,
+        name: str,
         control_type: str,
         automation_id: str = "",
         class_name: str = "",
-        parent_element_name: str = "",
+        parent_name: str = "",
         parent_control_type: str = "",
         parent_automation_id: str = "",
         timeout: int = 5,
@@ -132,7 +132,7 @@ def register_verify_tools(mcp, app_manager):
                 Available options:
                 - 'pywinauto': Use the pywinauto framework to locate and control native desktop UI elements.
                 This parameter determines which part of the snapshot will be used for element interaction.
-            element_name: title of the control to search for.
+            name: title of the control to search for.
             control_type: The type/role of control, **MUST be extracted from the UI snapshot/element information, do NOT assume based on content type**.
             automation_id: Optional automation ID of the element
             class_name: Optional class name of the element, extract from the class_name.
@@ -149,11 +149,11 @@ def register_verify_tools(mcp, app_manager):
             if control_framework == "pywinauto":
                 element, exists, search_kwargs, parent_search_kwargs = await find_element_by_kwargs(
                     app_manager,
-                    element_name,
+                    name,
                     control_type,
                     automation_id=automation_id,
                     class_name=class_name,
-                    parent_name=parent_element_name,
+                    parent_name=parent_name,
                     parent_control_type=parent_control_type,
                     parent_automation_id=parent_automation_id,
                     timeout=timeout,
@@ -175,11 +175,11 @@ def register_verify_tools(mcp, app_manager):
             resp["info"] = f"{repr(e)}"
         except TimeoutError:
             resp["status"] = "success"
-            resp["info"] = f"Element '{element_name}' not found within {timeout} seconds, as expected."
+            resp["info"] = f"Element '{name}' not found within {timeout} seconds, as expected."
         except Exception as e:
             resp["status"] = "error"
             resp["error"] = repr(e)
-            logger.error(f"Error in verify_element_not_exist for '{element_name}': {repr(e)}")
+            logger.error(f"Error in verify_element_not_exist for '{name}': {repr(e)}")
 
         return format_tool_response(resp)
 
@@ -284,14 +284,14 @@ def register_verify_tools(mcp, app_manager):
     async def verify_element_value(
         caller: str,
         control_framework: str,
-        element_name: str,
+        name: str,
         element_value: str,
         control_type: str,
         expected_value: str,
         automation_id: str = "",
         control_idx: int = 1,
         class_name: str = "",
-        parent_element_name: str = "",
+        parent_name: str = "",
         parent_control_type: str = "",
         parent_automation_id: str = "",
         step_raw: str = "",
@@ -310,7 +310,7 @@ def register_verify_tools(mcp, app_manager):
                 Available options:
                 - 'pywinauto': Use the pywinauto framework to locate and control native desktop UI elements.
                 This parameter determines which part of the snapshot will be used for element interaction.
-            element_name: Name or title of the element to search for
+            name: Name or title of the element to search for
             element_value: value of the control, extract from the element value
             control_type: Optional control type for more specific search (Edit, Button, etc.)
             expected_value: The expected value to verify, only extract from the step content, do not extract from the element value
@@ -318,7 +318,7 @@ def register_verify_tools(mcp, app_manager):
             control_idx: Element index to select when multiple elements match (1-based).
                 Default value 1.
             class_name: Optional class name of the element, extract from the class_name.
-            parent_element_name: The exact title/name of the parent element
+            parent_name: The exact title/name of the parent element
             parent_control_type: Optional control type of the parent element
             parent_automation_id: Optional automation ID of the parent element
             step_raw: Raw original step text
@@ -336,12 +336,12 @@ def register_verify_tools(mcp, app_manager):
             if control_framework == "pywinauto":
                 element, exists, search_kwargs, parent_search_kwargs = await find_element_by_kwargs(
                     app_manager,
-                    element_name,
+                    name,
                     control_type,
                     automation_id=automation_id,
                     control_idx=control_idx,
                     class_name=class_name,
-                    parent_name=parent_element_name,
+                    parent_name=parent_name,
                     parent_control_type=parent_control_type,
                     parent_automation_id=parent_automation_id,
                     timeout=timeout,

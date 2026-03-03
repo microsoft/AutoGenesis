@@ -24,3 +24,81 @@ configuration:
     role: Maintain
   - member: maryhardy
     role: Maintain
+  - member: v-minya
+    role: Read
+  - member: v-ygeng
+    role: Read
+  - member: v-guoweiju
+    role: Read
+  - member: v-jingli6
+    role: Read
+  - member: v-chonzhang
+    role: Read
+  - member: v-ellinlu
+    role: Read
+  - member: v-qionli
+    role: Read
+  - member: v-taogu
+    role: Read
+  - member: v-xiaopiyang
+    role: Read
+  - member: v-yuexin
+    role: Read
+  - member: v-xuhuizhu
+    role: Read
+  - member: v-yuanzhou
+    role: Read
+  - member: v-dajunding
+    role: Read
+  - member: v-yumengwang
+    role: Read
+  - member: v-liyuanchen
+    role: Read
+  - member: v-xinroxu
+    role: Read
+  - member: v-muhuaxu
+    role: Read
+  - member: v-kunyuwu
+    role: Read
+  - member: v-norachen
+    role: Read
+  - member: v-jiaxinzhao
+    role: Read
+  - member: v-zhouyun
+    role: Read
+  - member: v-zenazhang
+    role: Read
+  - member: v-yangkan
+    role: Read
+  - member: v-kaichen
+    role: Read
+  - member: v-wangxiaofe
+    role: Read
+  - member: v-suntao
+    role: Read
+  - member: v-bowenyao
+    role: Read
+  - member: v-zhaoyuxin
+    role: Read
+  - member: v-shuyichu
+    role: Read
+  - member: v-zhulu
+    role: Read
+  - member: v-shelzhang
+    role: Read
+  - member: v-huizhang
+    role: Read
+  - member: v-chenyshen
+    role: Read
+  - member: v-zexuewang
+    role: Read
+  - member: v-shengnliu
+    role: Read
+  - member: v-xianmyang
+    role: Read
+  - member: v-baji
+    role: Read
+  - member: v-siyudong
+    role: Read
+  - member: v-chenchenji
+    role: Read
