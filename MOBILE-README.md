@@ -15,8 +15,17 @@ Appium MCP Server is a mobile application automated testing service based on Mod
 ### Prerequisites
 
 - Python 3.10 or higher
-- pip package manager
+- [uv](https://docs.astral.sh/uv/) package manager
 - VS Code or Cursor
+
+#### Install uv
+
+```powershell
+# Install uv for faster dependency management
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Or download from https://github.com/astral-sh/uv/releases/latest
+```
 
 ### 1. Clone the Repository
 
@@ -30,7 +39,7 @@ Open PowerShell and run:
 Navigate to the `appium-mcp-server` directory and install Python dependencies:
 
     cd appium-mcp-server
-    pip install -r requirements.txt
+    uv sync
 
 **Dependencies include:**
 - `appium-python-client` - Appium Python client
@@ -119,9 +128,10 @@ Edit the configuration file with your BrowserStack credentials:
 
 ### 4. Start MCP Server
 
-Start the MCP server:
-Default startup mode is SSE
-    python simple_server.py --platform android
+Start the MCP server (default startup mode is SSE):
+
+    cd appium-mcp-server
+    uv run python simple_server.py --platform android
 
 ### 5. Configure MCP Client
 
@@ -133,7 +143,7 @@ Create or edit `.vscode/mcp.json` in your project root:
 
     # Add MCP server configuration to .vscode/mcp.json:
     # {
-    #   "github.copilot.chat.mcp.servers": {
+    #   "servers": {
     #     "appium-mcp-sse": {
     #       "url": "http://localhost:8000/sse"
     #     }
@@ -145,10 +155,14 @@ Create or edit `.vscode/mcp.json` in your project root:
 
     # Add MCP server configuration to .vscode/mcp.json:
     # {
-    #   "github.copilot.chat.mcp.servers": {
+    #   "servers": {
     #     "appium-mcp-server-stdio": {
-    #       "command": "c:\\Users\\username\\projects\\AutoGenesis\\.venv\\Scripts\\python.exe",
+    #       "command": "uv",
     #       "args": [
+    #         "run",
+    #         "--project",
+    #         "c:\\Users\\username\\projects\\AutoGenesis\\appium-mcp-server",
+    #         "python",
     #         "c:\\Users\\username\\projects\\AutoGenesis\\appium-mcp-server\\simple_server.py",
     #         "--transport",
     #         "stdio",
@@ -167,10 +181,8 @@ Create or edit `.vscode/mcp.json` in your project root:
 
 **Note:** 
 - stdio mode: VS Code automatically starts and manages the MCP server process, suitable for local development
-- SSE mode: Requires manual start of MCP server (`python simple_server.py --transport sse`), suitable for remote servers or multi-client scenarios
-- Use virtual environment Python path (`.venv\\Scripts\\python.exe`) for better dependency isolation
+- SSE mode: Requires manual start of MCP server (`uv run python simple_server.py --platform android`), suitable for remote servers or multi-client scenarios
 - `--platform` parameter: specify `ios` or `android` based on your testing needs
-- Environment variables ensure proper UTF-8 encoding for international character support
 - Please replace the paths with your actual project paths
 
 #### 5.2 Cursor Configuration
@@ -194,8 +206,12 @@ Configure MCP server in Cursor settings:
     # {
     #   "mcpServers": {
     #     "appium-mcp-server-stdio": {
-    #       "command": "c:\\Users\\username\\projects\\AutoGenesis\\.venv\\Scripts\\python.exe",
+    #       "command": "uv",
     #       "args": [
+    #         "run",
+    #         "--project",
+    #         "c:\\Users\\username\\projects\\AutoGenesis\\appium-mcp-server",
+    #         "python",
     #         "c:\\Users\\username\\projects\\AutoGenesis\\appium-mcp-server\\simple_server.py",
     #         "--transport",
     #         "stdio",
@@ -213,11 +229,9 @@ Configure MCP server in Cursor settings:
     # }
 
 **Note:**
-- SSE mode: Need to manually start the server first (`python simple_server.py --platform android`, uses SSE by default), then Cursor connects via HTTP
+- SSE mode: Need to manually start the server first (`uv run python simple_server.py --platform android`), then Cursor connects via HTTP
 - stdio mode: Cursor automatically starts and manages the server process
-- Use virtual environment Python path (`.venv\\Scripts\\python.exe`) for better dependency isolation
 - `--platform` parameter: specify `ios` or `android` based on your testing needs
-- Environment variables ensure proper UTF-8 encoding for international character support
 - Please replace the paths with your actual project paths
 
 ### 6. Use MCP to Generate Test Code
@@ -423,7 +437,11 @@ Start the local Appium server:
 Check Python version and dependencies:
 
     python --version
-    pip list
+    uv pip list
+
+Or try re-syncing:
+
+    uv sync
 
 Ensure Python version is 3.10 or higher. Check the log file `logs/mcp_server.log` for detailed error information.
 

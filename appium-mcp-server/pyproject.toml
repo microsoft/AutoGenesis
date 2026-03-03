@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "appium-mcp-server"
+version = "0.1.0"
+description = "Appium MCP Server for mobile automation testing"
+authors = [
+    {name = "AutoGenesis Team"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "psutil",
+    "mcp>=1.23.0",
+    "selenium>=4.0.0",
+    "appium-python-client>=2.0.0",
+    "behave==1.2.6",
+    "janus>=0.6.0",
+    "browserstack-sdk==1.23.8",
+    "langchain>=0.1.20",
+    "langchain-openai>=0.0.8",
+    "langchain-anthropic>=0.0.8",  
+    "langchain-google-genai>=0.0.8",
+    "google-generativeai>=0.4.0",
+    "anthropic>=0.22.0",
+    "openai>=1.0.0",
+    "pillow==11.1.0",
+    "applicationinsights",
+    "watchdog>=3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "flake8", 
+    "mypy",
+]
+
+[tool.setuptools]
+py-modules = ["simple_server", "simple_client", "driver_session"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["utils*", "tools*", "llm*"]
+exclude = ["logs*", "conf*", "__pycache__*", "*.pyc"]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=6.0.0",
+    "black>=21.0.0",
+    "flake8>=3.8.0",
+    "mypy>=0.900",
+]

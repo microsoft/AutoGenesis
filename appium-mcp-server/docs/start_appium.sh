@@ -96,7 +96,7 @@ if command -v python3 &>/dev/null; then
         echo -e "   ✅ ${GREEN}Appium-Python-Client: Installed${NC}"
     else
         echo -e "   ⚠️  ${YELLOW}Appium-Python-Client: Not installed (optional)${NC}"
-        echo -e "   ${YELLOW}   Install: pip install Appium-Python-Client${NC}"
+        echo -e "   ${YELLOW}   Install: uv add appium-python-client${NC}"
     fi
 else
     echo -e "   ⚠️  ${YELLOW}Python3: Not installed (optional for Python tests)${NC}"
