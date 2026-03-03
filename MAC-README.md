@@ -115,12 +115,34 @@ Keep this terminal window open while running tests.
 
 ### 5. Start MCP Server
 
-In a new terminal window, start the MCP server for Mac platform:
+#### 5.1 Create Virtual Environment
+
+First, create and activate a Python virtual environment (Python 3.10+ required):
 
     cd appium-mcp-server
+    
+    # Create virtual environment
+    python3 -m venv venv
+    
+    # Activate virtual environment
+    source venv/bin/activate
+    
+    # Install dependencies
+    pip install -r requirements.txt
+
+#### 5.2 Start MCP Server (SSE Mode Only)
+
+**This step is only required if you plan to use SSE (Server-Sent Events) mode. If you're using stdio mode, VS Code/Cursor will automatically manage the server process, so you can skip this step.**
+
+For SSE mode, with the virtual environment activated, start the MCP server for Mac platform:
+
     python simple_server.py --platform mac
 
 Default startup mode is SSE (Server-Sent Events).
+
+**Notes:** 
+- Keep the virtual environment activated whenever you need to run the MCP server in SSE mode
+- stdio mode users can proceed directly to section 6 (Configure MCP Client)
 
 ### 6. Configure MCP Client
 
@@ -132,8 +154,8 @@ Create or edit `.vscode/mcp.json` in your project root:
 
     # Add MCP server configuration to .vscode/mcp.json:
     # {
-    #   "github.copilot.chat.mcp.servers": {
-    #     "appium-mcp-sse-mac": {
+    #   "servers": {
+    #     "auto-genesis-mcp-sse-mac": {
     #       "url": "http://localhost:8000/sse"
     #     }
     #   }
@@ -144,16 +166,19 @@ Create or edit `.vscode/mcp.json` in your project root:
 
     # Add MCP server configuration to .vscode/mcp.json:
     # {
-    #   "github.copilot.chat.mcp.servers": {
-    #     "appium-mcp-mac": {
-    #       "command": "python",
+    #   "servers": {
+    #     "auto-genesis-mcp-mac": {
+    #       "command": "/Users/yourusername/projects/AutoGenesis/appium-mcp-server/venv/bin/python",
     #       "args": [
-    #         "c:/Users/yourusername/projects/AutoGenesis/appium-mcp-server/simple_server.py",
+    #         "/Users/yourusername/projects/AutoGenesis/appium-mcp-server/simple_server.py",
     #         "--platform",
     #         "mac"
     #       ],
     #       "env": {
-    #         "PYTHONPATH": "c:/Users/yourusername/projects/AutoGenesis/appium-mcp-server"
+    #         "PYTHONIOENCODING": "utf-8",
+    #         "PYTHONUTF8": "1",
+    #         "LANG": "en_US.UTF-8",
+    #         "LC_ALL": "en_US.UTF-8"
     #       }
     #     }
     #   }
@@ -161,8 +186,9 @@ Create or edit `.vscode/mcp.json` in your project root:
 
 **Note:** 
 - stdio mode: VS Code automatically starts and manages the MCP server process, suitable for local development
-- SSE mode: Requires manual start of MCP server (`python simple_server.py --platform mac`), suitable for remote servers or multi-client scenarios
+- SSE mode: Requires manual start of MCP server (activate virtual environment first, then `python simple_server.py --platform mac`), suitable for remote servers or multi-client scenarios
 - Please replace the path with your actual project path
+- Make sure to use the Python executable from the virtual environment (`venv/bin/python`) in stdio mode
 
 #### 6.2 Cursor Configuration
 
@@ -173,7 +199,7 @@ Configure MCP server in Cursor settings:
     # Add to Cursor MCP configuration:
     # {
     #   "mcpServers": {
-    #     "appium-mcp-sse-mac": {
+    #     "auto-genesis-mcp-sse-mac": {
     #       "url": "http://localhost:8000/sse"
     #     }
     #   }
@@ -184,10 +210,10 @@ Configure MCP server in Cursor settings:
     # Add to Cursor MCP configuration:
     # {
     #   "mcpServers": {
-    #     "appium-mcp-mac": {
-    #       "command": "python",
+    #     "auto-genesis-mcp-mac": {
+    #       "command": "/Users/yourusername/projects/AutoGenesis/appium-mcp-server/venv/bin/python",
     #       "args": [
-    #         "c:/Users/yourusername/projects/AutoGenesis/appium-mcp-server/simple_server.py",
+    #         "/Users/yourusername/projects/AutoGenesis/appium-mcp-server/simple_server.py",
     #         "--platform",
     #         "mac"
     #       ]
@@ -196,9 +222,10 @@ Configure MCP server in Cursor settings:
     # }
 
 **Note:**
-- SSE mode: Need to manually start the server first (`python simple_server.py --platform mac`), then Cursor connects via HTTP
+- SSE mode: Need to manually start the server first (activate virtual environment, then `python simple_server.py --platform mac`), then Cursor connects via HTTP
 - stdio mode: Cursor automatically starts and manages the server process
 - Please replace the path with your actual project path
+- Make sure to use the Python executable from the virtual environment (`venv/bin/python`) in stdio mode
 
 ### 7. Use MCP to Generate Test Code
 
