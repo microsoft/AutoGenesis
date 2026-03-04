@@ -238,110 +238,27 @@ Feature: Mobile Browser Testing
     Then Page title should contain "Bing"
 ```
 
-#### 6.2 Send Prompt to Generate Code
+#### 6.2 Generate Test Code
 
-Send the following prompt in VS Code or Cursor AI Chat.
+Use the autoGenesis-run skill to automatically generate test code from your scenarios:
 
-**Note:** Replace the scenario below with your own test case steps based on your application's functionality. In the example below, "I navigate to URL" step would typically require multiple MCP operations: click address bar, clear existing content, input URL, and click go button.
+This project includes a pre-configured skill that simplifies the test execution process. Simply provide your scenario name and steps in natural language:
 
-**Example prompt:**
+**Quick Example:**
 ```
-    Scenario: Test msn.com website on Edge
-    Given I have launched Edge browser
-    When I click the search box in NTP page
-    And I input "msn.com" in the search box
-    And I press enter to navigate to the page
-    And I wait for the page to load completely
-    Then I should see the tab with the title "msn.com"
-
-Please use appium-mcp-server to execute the following instructions: 
-
-CRITICAL REQUIREMENTS - MUST FOLLOW EXACTLY:
-
-1. **BEFORE STARTING**: Call before_gen_code FIRST
-
-2. **FOR EACH STEP EXECUTION**:
-   - Call the appropriate MCP tool(s) for the step
-   - A step may require MULTIPLE MCP calls to complete (e.g., click then type, scroll then click)
-   - WAIT for each MCP tool response
-   - **MANDATORY**: IMMEDIATELY analyze and report each MCP response:
-     * State the tool called and its parameters
-     * Explicitly report the status: "Status: success" or "Status: error"
-     * If error: Quote the exact error message 
-     * If success: Confirm what was accomplished
-   - **CRITICAL**: If ANY MCP call returns status ≠ "success", you MUST:
-     * **IMMEDIATELY acknowledge the failure**
-     * **Quote the exact error message** from the response
-     * **Analyze why it failed** (wrong locator, element not ready, etc.)
-     * **Implement retry strategy** - try alternative approaches immediately
-     * **Continue retrying** until this specific operation succeeds
-     * Do not proceed to next operation until current one succeeds
-   - Only proceed to next step when current step is fully completed and verified
-
-3. **VERIFICATION STEPS**: 
-   - ALL verification/validation steps (like "I should see...") MUST use MCP tools
-   - NEVER perform verification by analyzing page source yourself
-   - Use verify_element_exists, verify_element_attribute, or other MCP verification tools
-   - If verification fails, try alternative locator strategies
-
-4. **AFTER ALL STEPS COMPLETE**:
-   - MANDATORY: Call preview_code_changes MCP tool
-   - MANDATORY: Call confirm_code_changes MCP tool
-   - These two steps are REQUIRED and cannot be skipped
-
-5. **ERROR HANDLING & RETRY STRATEGY**:
-   - **PERSISTENT RETRY REQUIRED**: If any MCP tool returns error status, you MUST:
-     * **Acknowledge the failure** immediately but continue working on this step
-     * **Quote the exact error message** from the response
-     * **Analyze why it failed** (wrong locator, element not ready, etc.)
-     * **Report what you will try next** before attempting
-     * **Immediately try the next alternative approach**
-   - Retry alternative approaches in this order (keep trying until one succeeds):
-     * Try different locator strategies (NAME, ACCESSIBILITY_ID, XPATH, etc.)
-     * Try alternative element attributes or text values
-     * Try finding similar elements with different properties
-     * Try scrolling or waiting before retrying the action
-     * Break complex steps into smaller MCP operations if needed
-     * For navigation: try different ways to access address bar (tap vs long press vs menu)
-   - **MANDATORY**: After each retry attempt, explicitly report the result
-   - **PERSISTENCE RULE**: Keep trying alternatives until the step operation succeeds
-   - For multi-step operations, if one sub-operation fails, retry that part before continuing
-   - **DO NOT ASSUME SUCCESS** - every MCP call must be verified
-   - **Only stop the entire step** if you've exhausted ALL reasonable alternatives
-   - **Success requirement**: The step is only complete when all required operations succeed
-   - **Final requirement**: Report what was tried and what finally worked (or total failure)
-
-6. **EXECUTION RULES**:
-   - Execute steps in exact order as written
-   - Each step may require MULTIPLE MCP calls to complete fully
-   - Examples: "navigate to URL" might need click_element (search box) + send_keys (URL) + click_element (go button)
-   - Examples: "verify page loaded" might need scroll_to_element + verify_element_exists + verify_element_attribute
-   - **MANDATORY VERIFICATION**: After each individual MCP call within a step:
-     * Check and report the response status
-     * If successful: Confirm the action was completed successfully  
-     * If failed: **IMMEDIATELY retry with alternative approaches**
-     * **RETRY PERSISTENCE**: Continue trying until the operation succeeds
-     * Never proceed to next operation while current one is failing
-   - Generate one block of test code per step (may contain multiple MCP operations)
-   - Use ONLY appium-mcp-server MCP tools
-   - Never modify, merge, skip, or add steps
-   - **STEP-BY-STEP VALIDATION**: Each step must be fully verified before proceeding
-   - When retrying, use the most successful approach in final generated code
-
-REMEMBER: Every step must be validated through MCP tools, not through your own analysis. When encountering errors, **RETRY with different approaches** rather than giving up. **Continue retrying until each operation succeeds**. Complete each step fully before moving to the next.
-
-**CRITICAL SUCCESS VERIFICATION PROTOCOL**:
-- After each MCP tool call, you MUST explicitly state: "✅ SUCCESS: [tool_name] completed" or "❌ FAILED: [tool_name] with error [message]"  
-- **RETRY UNTIL SUCCESS**: If you get "❌ FAILED", immediately try alternative approaches for the SAME operation
-- **NO STOPPING ON FIRST FAILURE**: Keep trying different methods until you achieve success
-- Before moving to next step, confirm: "✅ STEP COMPLETED: [step_name] - all required actions successful"
-- **STEP COMPLETION RULE**: A step is only complete when ALL its required operations succeed
-- If you proceed without explicit success confirmation, you are violating the protocol
-- Never assume operations worked - always verify through MCP tool responses
-- **DEFINITION OF SUCCESS**: Every operation in a step must return "status: success" before proceeding
+Use autoGenesis to execute scenario: Test msn.com website on Edge
 ```
-AI will call MCP tools to automatically generate corresponding step definition code.
 
+The skill will automatically:
+- Locate the scenario from .feature files in behave-demo/features/
+- Parse all scenario steps
+- Execute each step through MCP tool calls
+- Handle retry logic and error recovery
+- Generate BDD test code
+- Save the generated code to your project
+
+
+**For more examples and usage details, see:** [.github/skills/autoGenesis-run/](.github/skills/autoGenesis-run/)
 
 ### 7. Run Generated Test Code
 
