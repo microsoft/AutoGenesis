@@ -5,6 +5,25 @@ description: Execute Appium BDD test scenarios via appium-mcp-server with auto c
 
 # AutoGenesis Run
 
+Execute Appium BDD test scenarios and automatically generate Python step implementation files.
+
+## Project Structure
+
+**CRITICAL**: This skill works with the following project structure:
+
+```
+behave-demo/
+├── features/
+│   ├── *.feature           # Feature files (e.g., demo.feature)
+│   ├── environment.py      # Behave environment setup
+│   └── steps/
+│       └── *_steps.py      # Generated step implementations (OUTPUT HERE)
+```
+
+**Generated step files MUST be saved to**: `behave-demo/features/steps/`
+
+**NOTE**: The MCP server may try to save to `appium-mcp-server/behave_demo/features/steps/`. After code generation, you MUST verify the files are in the correct `behave-demo/features/steps/` directory and copy them if needed.
+
 ## Input
 
 - **scenario_name** (required): Name of the scenario to execute, matching the `Scenario:` line in the `.feature` file.
@@ -59,9 +78,13 @@ CRITICAL REQUIREMENTS - MUST FOLLOW EXACTLY:
    - If verification fails, try alternative locator strategies
 
 4. **AFTER ALL STEPS COMPLETE**:
-   - MANDATORY: Call preview_code_changes MCP tool
-   - MANDATORY: Call confirm_code_changes MCP tool
+   - MANDATORY: Call preview_code_changes MCP tool to view generated code
+   - MANDATORY: Call confirm_code_changes MCP tool to save the code
    - These two steps are REQUIRED and cannot be skipped
+   - **PATH VERIFICATION**: After confirm_code_changes, verify the save location:
+     * MCP server reports the path where it saved the file
+     * If saved to `appium-mcp-server/behave_demo/...`, copy to `behave-demo/features/steps/`
+     * Confirm the correct final location to the user
 
 5. **ERROR HANDLING & RETRY STRATEGY**:
    - Retry alternative approaches in this order (keep trying until one succeeds):
@@ -94,10 +117,35 @@ REMEMBER: Every step must be validated through MCP tools, not through your own a
 
 ---
 
-### Step 3: Post-Execution
+### Step 3: Post-Execution & Path Verification
 
-After all steps complete and code is saved, remind the user to run:
+**CRITICAL - Verify File Location**:
+
+After `preview_code_changes` and `confirm_code_changes` are called, you MUST:
+
+1. **Check where the MCP server saved the files**:
+   - The server may report: `appium-mcp-server/behave_demo/features/steps/common_steps.py`
+   - This is the WRONG location for the behave project
+
+2. **Copy files to the correct location**:
+   - Read the generated code from the MCP server's location
+   - Create/update the file in: `behave-demo/features/steps/<scenario_name>_steps.py`
+   - Use a descriptive filename based on the scenario or feature name
+
+3. **Confirm the final location** to the user:
+   ```
+   ✅ Step file saved to: behave-demo/features/steps/demo_steps.py
+   ```
+
+4. **Provide run instructions**:
 
 ```bash
+cd behave-demo
 behave --name "{{SCENARIO_NAME}}"
+```
+
+Or run the entire feature file:
+
+```bash
+behave behave-demo/features/<feature_file>.feature
 ```

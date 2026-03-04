@@ -32,7 +32,7 @@ brew install uv
 
 Open Terminal and run:
 
-    git clone https://github.com/ai-microsoft/AutoGenesis.git
+    git clone https://github.com/microsoft/AutoGenesis.git
     cd AutoGenesis
 
 ### 2. Install Dependencies

@@ -31,7 +31,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 Open PowerShell and run:
 
-    git clone https://github.com/ai-microsoft/AutoGenesis.git
+    git clone https://github.com/microsoft/AutoGenesis.git
     cd AutoGenesis
 
 ### 2. Install Dependencies
@@ -260,7 +260,7 @@ This project includes a pre-configured skill that simplifies the test execution 
 
 **Quick Example:**
 ```
-Use autoGenesis to execute scenario: Test msn.com website on Edge
+Use skill autoGenesis-run to execute scenario: Test msn.com website on Edge
 ```
 
 The skill will automatically:

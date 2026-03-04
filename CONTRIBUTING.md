@@ -38,7 +38,7 @@ If you find a bug or have a feature request, please create an issue in the GitHu
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/ai-microsoft/AutoGenesis.git
+   git clone https://github.com/microsoft/AutoGenesis.git
    cd AutoGenesis
    ```
 2. Install dependencies:
