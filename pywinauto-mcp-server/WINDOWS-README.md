@@ -27,10 +27,12 @@ git clone <repository-url>
 cd pywinauto-mcp-server
 ```
 
-2. Install dependencies:
+2. Install dependencies using [uv](https://docs.astral.sh/uv/):
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
+
+> **Alternative**: If you prefer pip, you can still use `pip install -r requirements.txt`.
 
 ## Usage
 
@@ -39,7 +41,7 @@ pip install -r requirements.txt
 Run the following command to start the MCP server:
 
 ```bash
-python simple_server.py [--transport TRANSPORT] [--config CONFIG]
+uv run simple_server.py [--transport TRANSPORT] [--config CONFIG]
 ```
 
 Options:
@@ -49,7 +51,7 @@ Options:
 
 Example:
 ```bash
-python simple_server.py --transport sse
+uv run simple_server.py --transport sse
 ```
 
 This will start the MCP server on port 8000 using Server-Sent Events (SSE) transport.
@@ -65,10 +67,13 @@ Add the following configuration:
 ```json
 {
   "mcpServers": {
-    "pywinauto": {
-      "command": "python",
+    "bdd-auto-mcp-pywinauto": {
+      "command": "uv",
       "args": [
-        "C:\\Users\\<your-username>\\code\\AutoGenesis\\pywinauto-mcp-server\\simple_server.py",
+        "run",
+        "--directory",
+        "C:\\Users\\<your-username>\\code\\AutoGenesis\\pywinauto-mcp-server",
+        "simple_server.py",
         "--transport",
         "stdio"
       ]
@@ -142,6 +147,8 @@ After configuration, you can use natural language through your MCP client to int
 pywinauto-mcp-server/
 ├── simple_server.py       # MCP server main program
 ├── app_session.py         # Application session manager
+├── pyproject.toml         # uv/project configuration
+├── requirements.txt       # Dependencies list (legacy)
 ├── conf/                  # Configuration directory
 │   └── pywinauto_conf.json
 ├── tools/                 # Tool modules
@@ -152,7 +159,6 @@ pywinauto-mcp-server/
 ├── utils/                 # Utility functions
 ├── llm/                   # LLM integration
 ├── logs/                  # Logs directory
-├── requirements.txt       # Dependencies list
 └── WINDOWS-README.md      # Documentation (this file)
 ```
 
@@ -196,9 +202,8 @@ The server provides the following tools to automate Windows applications through
 ### Common Issues
 
 1. **Server fails to start**
-   - Confirm Python 3.10+ is installed
-   - Check that the path in your MCP client configuration file is correct
-   - Review log files for detailed error information
+   - Confirm Python 3.10+ is installed and `uv` is available (`uv --version`)
+   - Run `uv sync` to ensure all dependencies are installed
 
 2. **Cannot find element**
    - Ensure the target application is open and active
@@ -220,10 +225,10 @@ The server provides the following tools to automate Windows applications through
 
 ```bash
 # Run server directly
-python simple_server.py --transport sse
+uv run simple_server.py --transport sse
 
 # Use custom configuration
-python simple_server.py --config path/to/your/config.json
+uv run simple_server.py --config path/to/your/config.json
 ```
 
 
