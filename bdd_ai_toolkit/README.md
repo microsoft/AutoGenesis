@@ -55,19 +55,26 @@ Open VS Code Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`) → Search "BDD AI Tool
    > ```
    > For detailed setup instructions, see [macOS Appium Setup Guide](../appium-mcp-server/docs/macOS_Appium_Setup_Guide.md).
 
-4. **Open Configuration File**
+4. **Configure Automation Platform**
+   
+   Open `bdd_ai_conf.json` in the project root and update the configuration for your target platform, such as:
+   - Account credentials (e.g. BrowserStack `userName`, `accessKey`)
+   - App `bundleId` or `appPackage`/`appActivity`
+   - Device name, platform version, etc.
+
+5. **Open MCP Configuration File**
    
    Click **"Open"** button to view/edit the MCP configuration file
    
    The config file will be opened in the editor
 
-5. **Start MCP Server**
+6. **Start MCP Server**
    
    In the opened configuration file, click the **"Start"** button (CodeLens action)
    
    This launches the MCP server
 
-6. **Verify Connection in GitHub Copilot**
+7. **Verify Connection in GitHub Copilot**
    
    - Open GitHub Copilot Chat
    - Check MCP connections panel
