@@ -48,6 +48,13 @@ Open VS Code Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`) → Search "BDD AI Tool
    
    Click **"Setup"** button to configure the selected platform
 
+   > **macOS users**: Before using Appium, you need to manually start the Appium server first. Run the provided script:
+   > ```bash
+   > cd appium-mcp-server/docs
+   > ./start_appium_on_mac.sh
+   > ```
+   > For detailed setup instructions, see [macOS Appium Setup Guide](../appium-mcp-server/docs/macOS_Appium_Setup_Guide.md).
+
 4. **Open Configuration File**
    
    Click **"Open"** button to view/edit the MCP configuration file

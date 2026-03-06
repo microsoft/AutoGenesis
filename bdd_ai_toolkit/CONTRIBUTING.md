@@ -77,9 +77,9 @@ This generates `bdd-ai-toolkit-<version>.vsix` that can be installed in VS Code.
 
 A helper script for macOS users to quickly set up Appium for mobile automation testing.
 
-**Location**: `scripts/start_appium.sh`
+**Script**: `appium-mcp-server/docs/start_appium_on_mac.sh`
 
-**Documentation**: [docs/macOS_Appium_Setup_Guide.md](docs/macOS_Appium_Setup_Guide.md)
+**Documentation**: [appium-mcp-server/docs/macOS_Appium_Setup_Guide.md](../appium-mcp-server/docs/macOS_Appium_Setup_Guide.md)
 
 > **Note**: This is a convenience tool for local development, not a core extension feature.
 
