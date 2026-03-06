@@ -72,6 +72,9 @@ class DriverSessionManager:
             return False
 
     def app_launch(self, kill_existing: int = 0, arguments: list = None):
+        # Normalize arguments: ensure it's a valid list or None
+        if not isinstance(arguments, list) or not arguments:
+            arguments = None
         if kill_existing == 1:
             self.app_close()
 

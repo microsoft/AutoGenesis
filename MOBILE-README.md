@@ -144,7 +144,7 @@ Create or edit `.vscode/mcp.json` in your project root:
     # Add MCP server configuration to .vscode/mcp.json:
     # {
     #   "servers": {
-    #     "appium-mcp-sse": {
+    #     "auto-genesis-mcp-sse": {
     #       "url": "http://localhost:8000/sse"
     #     }
     #   }
@@ -156,7 +156,7 @@ Create or edit `.vscode/mcp.json` in your project root:
     # Add MCP server configuration to .vscode/mcp.json:
     # {
     #   "servers": {
-    #     "appium-mcp-server-stdio": {
+    #     "auto-genesis-mcp-mobile": {
     #       "command": "uv",
     #       "args": [
     #         "run",
@@ -194,7 +194,7 @@ Configure MCP server in Cursor settings:
     # Add to Cursor MCP configuration:
     # {
     #   "mcpServers": {
-    #     "appium-mcp-sse": {
+    #     "auto-genesis-mcp-sse": {
     #       "url": "http://localhost:8000/sse"
     #     }
     #   }
@@ -205,7 +205,7 @@ Configure MCP server in Cursor settings:
     # Add to Cursor MCP configuration:
     # {
     #   "mcpServers": {
-    #     "appium-mcp-server-stdio": {
+    #     "auto-genesis-mcp-mobile": {
     #       "command": "uv",
     #       "args": [
     #         "run",
@@ -233,6 +233,18 @@ Configure MCP server in Cursor settings:
 - stdio mode: Cursor automatically starts and manages the server process
 - `--platform` parameter: specify `ios` or `android` based on your testing needs
 - Please replace the paths with your actual project paths
+
+#### 5.3 Specify MCP Server Name for Behave Tests
+
+When running behave tests, the test framework auto-discovers MCP servers from `.vscode/mcp.json` whose names start with `auto-genesis`. If you have multiple MCP servers configured or use a custom server name, you can specify the exact server name by editing `behave-demo/features/environment.py`:
+
+```python
+# Set to a specific server name from .vscode/mcp.json to use it.
+# Leave empty to auto-discover (prefers stdio over SSE, matching "auto-genesis" prefix).
+AUTO_GENESIS_MCP_SERVER = 'auto-genesis-mcp-mobile'
+```
+
+This ensures behave connects to the correct MCP server, especially useful when you have both SSE and stdio servers configured.
 
 ### 6. Use MCP to Generate Test Code
 
@@ -276,11 +288,16 @@ The skill will automatically:
 
 ### 7. Run Generated Test Code
 
+Before running tests, install dependencies in the `behave-demo` directory:
+
+    cd behave-demo
+    uv sync
+
 #### 7.1 Run Specific Scenario
 
 Run a specific test scenario by name:
 
-    behave --name "Scenario Name"
+    uv run python -m behave --name "Scenario Name"
 
 #### 7.2 More Options
 
@@ -289,13 +306,13 @@ For more Behave run options and usage, please refer to [Behave Official Document
 Common command examples:
 
     # Generate JSON report
-    behave --format json -o reports/results.json
+    uv run python -m behave --format json -o reports/results.json
     
     # Filter using tags
-    behave --tags=@smoke
+    uv run python -m behave --tags=@smoke
     
     # Verbose output
-    behave -v
+    uv run python -m behave -v
 
 
 ## Advanced Configuration
