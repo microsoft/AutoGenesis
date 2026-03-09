@@ -224,45 +224,60 @@ Configure MCP server in Cursor settings:
 
 **Note:** Please replace the paths with your actual project path.
 
+#### 6.3 Specify MCP Server Name for Behave Tests
+
+When running behave tests, the test framework auto-discovers MCP servers from `.vscode/mcp.json` whose names start with `auto-genesis`. If you have multiple MCP servers configured or use a custom server name, you can specify the exact server name by editing `behave-demo/features/environment.py`:
+
+```python
+# Set to a specific server name from .vscode/mcp.json to use it.
+# Leave empty to auto-discover (prefers stdio over SSE, matching "auto-genesis" prefix).
+AUTO_GENESIS_MCP_SERVER = 'auto-genesis-mcp-mac'
+```
+
+This ensures behave connects to the correct MCP server, especially useful when you have both SSE and stdio servers configured.
+
 ### 7. Use MCP to Generate Test Code
 
 #### 7.1 Write Test Cases
 
 The project already includes a sample test case `behave-demo/features/demo.feature`, you can refer to it to write new test cases suitable for your macOS app.
 
-#### 7.2 Send Prompt to Generate Code
+#### 7.2 Generate Test Code
 
-Send the following prompt in VS Code or Cursor AI Chat.
+Use the autoGenesis-run skill to automatically generate test code from your scenarios:
 
-**Note:** Replace the scenario below with your own test case steps based on your application's functionality.
+This project includes a pre-configured skill that simplifies the test execution process. Simply provide your scenario name and steps in natural language:
 
-**Example prompt:**
+**Quick Example:**
 ```
-    Scenario: Test macOS Calculator app
-    Given I have launched Calculator app
-    When I click button "5"
-    And I click button "+"
-    And I click button "3"
-    And I click button "="
-    Then The result should be "8"
-
-Please use appium-mcp-server to execute the following instructions: 
-Requirements: 
-1. Before executing the first step, call clear_cache, and after all steps are completed, sequentially call preview_code_changes and confirm_code_change. 
-2. Execute each step exactly as written, in order. Each step must generate one block of test code. 
-3. Do not modify, merge, skip, or add any step. 
-4. Use only appium-mcp-server API calls.
+Use skill autoGenesis-run to execute scenario: Test msn.com website on Edge
 ```
 
-AI will call MCP tools to automatically generate corresponding step definition code.
+The skill will automatically:
+- Locate the scenario from .feature files in behave-demo/features/
+- Parse all scenario steps
+- Execute each step through MCP tool calls
+- Handle retry logic and error recovery
+- Generate BDD test code
+- Save the generated code to your project
+
+
+**For more examples and usage details, see:** [.github/skills/autoGenesis-run/](.github/skills/autoGenesis-run/)
 
 ### 8. Run Generated Test Code
 
 #### 8.1 Run Specific Scenario
 
+Before running tests, install dependencies in the `behave-demo` directory:
+
+    cd behave-demo
+    uv sync
+
+#### 8.1 Run Specific Scenario
+
 Run a specific test scenario by name:
 
-    behave --name "Scenario Name"
+    uv run python -m behave --name "Scenario Name"
 
 #### 8.2 More Options
 
@@ -271,13 +286,13 @@ For more Behave run options and usage, please refer to [Behave Official Document
 Common command examples:
 
     # Generate JSON report
-    behave --format json -o reports/results.json
+    uv run python -m behave --format json -o reports/results.json
     
     # Filter using tags
-    behave --tags=@smoke
+    uv run python -m behave --tags=@smoke
     
     # Verbose output
-    behave -v
+    uv run python -m behave -v
 
 ## Advanced Configuration
 

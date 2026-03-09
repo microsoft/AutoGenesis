@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from typing import Optional
 from appium.webdriver.common.appiumby import AppiumBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -68,7 +69,7 @@ def register_appium_driver_tools(mcp, driver_manager):
     @mcp.tool()
     @log_tool_call
     @record_calls(driver_manager)
-    async def app_launch(caller: str = "", step: str = "", scenario: str = "", arguments: list = None) -> str:
+    async def app_launch(caller: str = "", step: str = "", scenario: str = "", arguments: Optional[list] = None) -> str:
         """Launch app
 
         Args:
@@ -81,6 +82,9 @@ def register_appium_driver_tools(mcp, driver_manager):
         """
         resp = init_tool_response()
         try:
+            # Normalize arguments: treat None, empty list, or non-list values as None
+            if not isinstance(arguments, list) or not arguments:
+                arguments = None
             driver_manager.app_launch(kill_existing=1, arguments=arguments)
             snapshot = driver_manager._driver.page_source
             resp["data"] = {"page_source": simplify_page_source(snapshot)}

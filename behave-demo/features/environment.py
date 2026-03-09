@@ -18,34 +18,114 @@ from mcp.client.stdio import stdio_client, StdioServerParameters
 from behave.contrib.scenario_autoretry import patch_scenario_with_autoretry
 from applicationinsights import TelemetryClient
 
+# MCP server name - set to a specific server name from .vscode/mcp.json to use it.
+# Leave empty to auto-discover (prefers stdio over SSE, matching "auto-genesis" prefix).
+AUTO_GENESIS_MCP_SERVER = ''
 
 session_ready = threading.Event()
-TRANSPORT = "stdio"  # Default transport method, can be changed to "sse" if needed
 
 # Global package variable - loaded from environment
 package = os.environ.get('PACKAGE', 'com.microsoft.emmx.canary')
 
-def load_mcp_config():
-    current_dir = pathlib.Path(__file__).parent.parent.parent
-    mcp_config_path = current_dir / ".vscode" / "mcp.json"
-    
-    if not mcp_config_path.exists():
-        raise FileNotFoundError(f"MCP config file not found: {mcp_config_path}")
-    
+def load_mcp_config(server_name=None):
+    """Load MCP server configuration from .vscode/mcp.json.
+
+    Args:
+        server_name: Exact server name to look up. If *None* or empty,
+                     falls back to the first server whose name starts with
+                     ``auto-genesis`` and uses the stdio transport (i.e. has
+                     a ``command`` field).
+
+    Returns:
+        A dict with the resolved configuration::
+
+            For stdio servers:
+                {"transport": "stdio", "command": ..., "args": [...], "env": {...}}
+            For SSE servers:
+                {"transport": "sse", "url": ...}
+    """
+    # Walk up from this file's directory to find .vscode/mcp.json
+    current_dir = pathlib.Path(__file__).parent
+    mcp_config_path = None
+    while True:
+        candidate = current_dir / ".vscode" / "mcp.json"
+        if candidate.exists():
+            mcp_config_path = candidate
+            break
+        parent = current_dir.parent
+        if parent == current_dir:
+            # Reached filesystem root
+            break
+        current_dir = parent
+
+    if mcp_config_path is None:
+        raise FileNotFoundError(
+            "MCP config file (.vscode/mcp.json) not found in any parent directory "
+            f"starting from {pathlib.Path(__file__).parent}"
+        )
+
+    print(f"Found MCP config: {mcp_config_path}")
+
     with open(mcp_config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
-    
-    # Find server configuration starting with bdd-auto-mcp
+
     servers = config.get("servers", {})
-    for server_name, server_config in servers.items():
-        if server_name.startswith("bdd-auto-mcp"):
-            command = server_config.get("command")
-            args = server_config.get("args", [])
-            print(f"Found MCP server configuration: command={command}")
-            print(f"Found MCP server configuration: args={args}")
-            return command, args
-    
-    raise ValueError("No bdd-auto-mcp server configuration found in mcp.json")
+
+    # --- 1. Try the explicitly requested server name ---
+    if server_name:
+        if server_name not in servers:
+            raise ValueError(
+                f"MCP server '{server_name}' not found in mcp.json. "
+                f"Available servers: {', '.join(servers.keys())}"
+            )
+        server_config = servers[server_name]
+        result = _parse_server_config(server_name, server_config)
+        print(f"Loaded MCP server '{server_name}' ({result['transport']}) from mcp.json")
+        return result
+
+    # --- 2. Auto-discover: prefer stdio, then SSE, matching "auto-genesis" prefix ---
+    sse_fallback = None
+    for name, server_config in servers.items():
+        if not name.startswith("auto-genesis"):
+            continue
+        if "command" in server_config:
+            result = _parse_server_config(name, server_config)
+            print(f"Auto-discovered MCP server '{name}' (stdio) from mcp.json")
+            return result
+        if "url" in server_config and sse_fallback is None:
+            sse_fallback = (name, server_config)
+
+    if sse_fallback:
+        name, server_config = sse_fallback
+        result = _parse_server_config(name, server_config)
+        print(f"Auto-discovered MCP server '{name}' (sse) from mcp.json")
+        return result
+
+    raise ValueError(
+        "No matching MCP server found in mcp.json. "
+        "Set AUTO_GENESIS_MCP_SERVER in environment.py, "
+        f"or add a server whose name starts with 'auto-genesis'. "
+        f"Available servers: {', '.join(servers.keys())}"
+    )
+
+
+def _parse_server_config(name, server_config):
+    """Return a normalised config dict from a raw mcp.json server entry."""
+    if "url" in server_config:
+        return {
+            "transport": "sse",
+            "url": server_config["url"],
+        }
+    if "command" in server_config:
+        return {
+            "transport": "stdio",
+            "command": server_config["command"],
+            "args": server_config.get("args", []),
+            "env": server_config.get("env", {}),
+        }
+    raise ValueError(
+        f"MCP server '{name}' has neither 'url' (SSE) nor 'command' (stdio) configured."
+    )
 
 def take_screenshot(context, scenario_name):
     """
@@ -148,17 +228,22 @@ def before_all(context):
 
         async def mcp_worker():
             try:
-                if TRANSPORT == "stdio":
+                mcp_config = load_mcp_config(server_name=AUTO_GENESIS_MCP_SERVER or None)
+                transport = mcp_config["transport"]
+
+                if transport == "stdio":
                     print("Using stdio transport for MCP server")
-                    # Load configuration from mcp.json
-                    command, args = load_mcp_config()
+                    command = mcp_config["command"]
+                    args = mcp_config["args"]
+                    env = mcp_config.get("env", {})
                     print(f"Loading MCP server with command: {command}")
                     print(f"Args: {args}")
                     
                     # Define MCP server parameters
                     server_params = StdioServerParameters(
                         command=command,
-                        args=args
+                        args=args,
+                        env={**os.environ, **env} if env else None
                     )
                     
                     # Connect to server using stdio_client
@@ -177,10 +262,10 @@ def before_all(context):
                                 result = await coro
                                 await context._result_queue.async_q.put(result)
                 else:
+                    sse_url = mcp_config["url"]
                     print("Using SSE transport for MCP server")
-                    # Connect to server using sse_client
-                    print("Connecting to SSE server at http://localhost:8000/sse")
-                    async with sse_client("http://localhost:8000/sse") as streams:
+                    print(f"Connecting to SSE server at {sse_url}")
+                    async with sse_client(sse_url) as streams:
                         async with ClientSession(*streams) as session:
                             await session.initialize()
                             context.session = session

@@ -51,6 +51,13 @@ Please use appium-mcp-server to execute the following instructions:
 
 CRITICAL REQUIREMENTS - MUST FOLLOW EXACTLY:
 
+0. **PARAMETER DISCIPLINE — READ TOOL SCHEMAS FIRST**:
+   - BEFORE calling ANY MCP tool, you MUST inspect its input schema to learn the EXACT parameter names, types, required/optional status, and allowed values.
+   - Pass ALL required parameters — do NOT omit any.
+   - Do NOT invent, guess, or fabricate parameters that are not in the schema. If a parameter does not appear in the tool's schema, it does not exist — do NOT pass it.
+   - Use parameter values EXACTLY as defined (e.g., if the schema shows enum values with a specific prefix, use that prefix).
+   - If you are unsure about a parameter, re-check the tool schema. Never assume.
+
 1. **BEFORE STARTING**: Call before_gen_code FIRST
 
 2. **FOR EACH STEP EXECUTION**:

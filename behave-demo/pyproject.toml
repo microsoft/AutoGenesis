@@ -1,0 +1,35 @@
+[project]
+name = "behave-sample-cases"
+version = "0.1.0"
+description = "Sample BDD test cases using Behave"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp",
+    "janus",
+    "behave==1.2.6",
+    "psutil",
+    "pillow",
+    "pywinauto",
+    "psutil",
+    "playwright",
+    "langchain>=0.1.20",
+    "langchain-openai>=0.0.8",
+    "langchain-anthropic>=0.0.8",
+    "langchain-google-genai>=0.0.8",
+    "google-generativeai>=0.4.0",
+    "anthropic>=0.22.0",
+    "openai>=1.0.0",
+    "applicationinsights"
+]
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.1.0", 
+    "reformat-gherkin>=3.0.0",
+    "pre-commit>=3.0.0",
+]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+line-ending = "auto"
