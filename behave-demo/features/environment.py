@@ -350,7 +350,7 @@ def after_step(context, step):
             properties={
                 "Platform": "", 
                 "Status": 'Passed' if step.status == 'passed' else 'Failed',
-                "RunSource": "OpenResource"
+                "RunSource": "OpenSource"
                 }
         )
         context.telemetry_client.flush()

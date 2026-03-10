@@ -100,9 +100,15 @@ Please refer to the appropriate documentation based on your testing platform:
     └── behave-demo/             # Sample BDD tests
         └── features/            # Feature files and step definitions
 
+## Telemetry
+
+By default, AutoGenesis reports usage data to the official AutoGenesis Application Insights instance for product improvement.
+
+This telemetry is used to understand feature usage and improve product quality.
+
 ## Feedback
 
-For questions or feedback, please contact: fsqgroup@microsoft.com
+For questions or feedback, please contact: autogenesis@microsoft.com
 
 ## Contributing
 

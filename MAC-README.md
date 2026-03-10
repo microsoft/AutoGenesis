@@ -72,7 +72,13 @@ If you encounter any issues during the setup process, please consult the [offici
 
 #### 3.3 Configure Appium Connection
 
-Edit the configuration file for Mac platform:
+Create a local config file from the template, then edit it for Mac platform:
+
+```bash
+cp conf/appium_conf.template.json conf/appium_conf.json
+```
+
+Then update `conf/appium_conf.json`:
 
     # Open conf/appium_conf.json and update the "mac" section:
     # {
@@ -384,7 +390,7 @@ Contributions are welcome! Please check [CONTRIBUTING.md](CONTRIBUTING.md) for d
 
 ## Contact
 
-For questions or suggestions, please contact: fsqgroup@microsoft.com
+For questions or suggestions, please contact: autogenesis@microsoft.com
 
 ## License
 

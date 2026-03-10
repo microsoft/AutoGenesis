@@ -65,24 +65,6 @@ In the `after_step` function (around line 258), comment out or remove:
 # context.telemetry_client.flush()
 ```
 
-**Option 3: Set environment variable**
-
-You can also disable telemetry by setting an environment variable:
-
-```bash
-export DISABLE_TELEMETRY=1
-```
-
-Then modify the code to check this variable before initializing telemetry:
-
-```python
-import os
-
-if not os.environ.get('DISABLE_TELEMETRY'):
-    telemetry_client = TelemetryClient('your-key')
-    context.telemetry_client = telemetry_client
-```
-
 ### For Custom Implementations
 
 If you're implementing your own test scenarios using AutoGenesis:
@@ -99,7 +81,7 @@ https://privacy.microsoft.com/privacystatement
 ## Contact
 
 If you have questions about data collection or privacy, please contact:
-- Email: fsqgroup@microsoft.com
+- Email: autogenesis@microsoft.com
 - Privacy concerns: https://privacy.microsoft.com/
 
 ## Additional Resources

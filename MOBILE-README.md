@@ -81,7 +81,13 @@ curl -u "your_username:your_access_key" -X POST "https://api-cloud.browserstack.
 
 #### 3.2 Configure Appium Connection
 
-Edit the configuration file with your BrowserStack credentials:
+Create a local config file from the template, then edit it with your BrowserStack credentials:
+
+```bash
+cp conf/appium_conf.template.json conf/appium_conf.json
+```
+
+Then update `conf/appium_conf.json`:
 
     # Open conf/appium_conf.json and update with your credentials:
     # {
@@ -349,6 +355,10 @@ Install Appium and required drivers globally:
 
 #### Update Configuration
 
+Create your local config first (if you have not created it yet):
+
+    cp conf/appium_conf.template.json conf/appium_conf.json
+
 Edit `conf/appium_conf.json` for local server:
 
     # {
@@ -413,7 +423,7 @@ Contributions are welcome! Please check [CONTRIBUTING.md](../CONTRIBUTING.md) fo
 
 ## Contact
 
-For questions or suggestions, please contact: fsqgroup@microsoft.com
+For questions or suggestions, please contact: autogenesis@microsoft.com
 
 ## License
 

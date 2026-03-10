@@ -44,9 +44,15 @@ If you find a bug or have a feature request, please create an issue in the GitHu
 2. Install dependencies:
    ```bash
    cd appium-mcp-server
-   pip install -r requirements.txt
+   uv sync
    ```
-3. Configure the Appium settings in `appium-mcp-server/conf/appium_conf.json`
+3. Create your local Appium config from the template and then update it:
+   ```bash
+   cp appium-mcp-server/conf/appium_conf.template.json appium-mcp-server/conf/appium_conf.json
+   ```
+   ```bash
+   cp appium-mcp-server/conf/appium_conf.template.json appium-mcp-server/conf/appium_conf.json
+   ```
 
 ### Code Style
 
