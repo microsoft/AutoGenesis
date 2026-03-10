@@ -50,8 +50,9 @@ If you find a bug or have a feature request, please create an issue in the GitHu
    ```bash
    cp appium-mcp-server/conf/appium_conf.template.json appium-mcp-server/conf/appium_conf.json
    ```
-   ```bash
-   cp appium-mcp-server/conf/appium_conf.template.json appium-mcp-server/conf/appium_conf.json
+   On Windows PowerShell:
+   ```powershell
+   Copy-Item appium-mcp-server/conf/appium_conf.template.json appium-mcp-server/conf/appium_conf.json
    ```
 
 ### Code Style
