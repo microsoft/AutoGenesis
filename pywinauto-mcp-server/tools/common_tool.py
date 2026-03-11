@@ -609,4 +609,48 @@ def register_common_tools(mcp, app_manager):
             logger.error(f"Error finding item: name={name}, control_type={control_type}. error={repr(e)}")
                  
         return format_tool_response(resp)
+
+
+    @mcp.tool()
+    @log_tool_call
+    @record_calls(app_manager)
+    async def app_wait(
+        caller: str,
+        duration: float,
+        scenario: str = "",
+        step_raw: str = "",
+        step: str = "",
+        need_snapshot: int = 0) -> str:
+        """
+        Wait/sleep for a specified duration in seconds.
+
+        Args:
+            caller: Identifier of the calling module/function
+            duration: Number of seconds to wait
+            scenario: Test scenario name
+            step_raw: Raw original step text
+            step: Current test step description
+            need_snapshot: Whether to include UI snapshot (default 0 for wait)
+
+        Returns:
+            JSON response with status information
+        """
+        resp = init_tool_response()
+        try:
+            if duration < 0:
+                raise ValueError(f"Duration must be non-negative, got {duration}")
+
+            await asyncio.sleep(duration)
+            resp["status"] = "success"
+            resp["data"] = {"duration": duration, "step_raw": step_raw}
+            logger.info(f"Waited for {duration} seconds")
+
+            if need_snapshot:
+                await fill_snapshot(resp, app_manager, need_snapshot=need_snapshot)
+        except Exception as e:
+            resp["status"] = "error"
+            resp["error"] = repr(e)
+            logger.error(f"Error during wait: {repr(e)}")
+
+        return format_tool_response(resp)
     

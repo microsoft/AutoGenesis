@@ -1,8 +1,11 @@
 {
     "PYWINAUTO_CONFIG": {
-        "app_name": "",
-        "exe": "",
-        "window_title_re": "",
-        "launch_args": []
+        "apps_config": {
+            "# app name": {
+                "exe": "# app exe path",
+                "window_title_re": "# window title regex",
+                "launch_args": ["# app launch arguments, e.g. --remote-debugging-port for edge"]
+            }
+        }
     }
 }

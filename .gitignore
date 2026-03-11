@@ -64,3 +64,5 @@ bdd_ai_toolkit/package-lock.json
 bdd_ai_toolkit/*.vsix
 appium-mcp-server/conf/appium_conf.json
 appium-mcp-server/uv.lock
+*/uv.lock
+pywinauto-mcp-server/conf/pywinauto_conf.json
