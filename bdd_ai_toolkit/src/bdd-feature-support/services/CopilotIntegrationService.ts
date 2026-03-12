@@ -155,6 +155,43 @@ export class CopilotIntegrationService {
   }
 
   /**
+   * Check if a specific skill exists in the current workspace repository
+   * Looks for .github/skills/{skillName}/SKILL.md in workspace folders
+   * @param skillName Name of the skill to search for
+   * @returns true if the skill exists
+   */
+  hasSkillInWorkspace(skillName: string): boolean {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+      return false;
+    }
+
+    for (const folder of workspaceFolders) {
+      const skillPath = path.join(
+        folder.uri.fsPath,
+        '.github',
+        'skills',
+        skillName,
+        'SKILL.md'
+      );
+      if (fs.existsSync(skillPath)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Generate a skill invocation command for Copilot
+   * @param skillName Name of the skill
+   * @param scenarioName Name of the scenario
+   * @returns Skill invocation string (e.g. "/autoGenesis-run Scenario Name")
+   */
+  generateSkillCommand(skillName: string, scenarioName: string): string {
+    return `/${skillName} ${scenarioName}`;
+  }
+
+  /**
    * Send text to Copilot chat
    * @param text Text to send
    */

@@ -72,7 +72,7 @@ xcodebuild -project WebDriverAgentMac.xcodeproj \
 
 ```bash
 # Use the provided script (includes environment checks)
-./start_appium.sh
+./start_appium_on_mac.sh
 
 # Or manually
 appium server --port 4723
@@ -80,7 +80,7 @@ appium server --port 4723
 
 ## Utility Script
 
-**`start_appium.sh`** - All-in-one tool that:
+**`start_appium_on_mac.sh`** - All-in-one tool that:
 - Checks environment prerequisites
 - Validates system permissions
 - Installs missing drivers automatically

@@ -533,8 +533,8 @@ export class SetupWebViewProvider implements vscode.WebviewViewProvider {
         };
       } // Look for BDD MCP server configurations (check both windows and appium servers)
       const projectBaseName = path.basename(projectPath);
-      const windowsServerName = `bdd-pywinauto-mcp-${projectBaseName}-windows`;
-      const appiumServerName = `bdd-pywinauto-mcp-${projectBaseName}-appium`;
+      const windowsServerName = `auto-genesis-extension-${projectBaseName}-windows`;
+      const appiumServerName = `auto-genesis-extension-${projectBaseName}-appium`;
 
       const windowsServerConfig = mcpConfig.servers[windowsServerName];
       const appiumServerConfig = mcpConfig.servers[appiumServerName];

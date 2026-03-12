@@ -118,7 +118,7 @@ Before starting the MCP server, you need to start the Appium server locally:
 
 ```bash
 cd docs
-./start_appium.sh
+./start_appium_on_mac.sh
 ```
 
 **Option B: Manual Start**

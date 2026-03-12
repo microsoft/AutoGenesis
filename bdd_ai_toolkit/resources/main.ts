@@ -1085,7 +1085,7 @@ function restoreSetupButton(): void {
                 } else if (setupButton.id === 'setupAppiumMcpWindows') {
                     setupButton.innerHTML = '<span class="button-title">Setup MCP Server (appium)</span><span class="button-subtitle">Initialize and configure appium automation MCP server</span>';
                 } else if (setupButton.id === 'setupAppiumMcpMac') {
-                    setupButton.innerHTML = '<span class="button-title">Setup MCP Server (appium)</span><span class="button-subtitle">Initialize and configure mobile automation MCP server</span>';
+                    setupButton.innerHTML = '<span class="button-title">Setup MCP Server (appium)</span>';
                 }
             }
         }

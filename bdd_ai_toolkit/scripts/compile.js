@@ -249,7 +249,7 @@ function compile() {
         if (fs.existsSync(srcResources)) {
             const files = fs.readdirSync(srcResources);
             for (const file of files) {
-                // Skip mcp-server directory as we will copy directly from auto-mcp-demo
+                // Skip mcp-server directory as we will copy directly from pywinauto-mcp-server
                 if (file === 'mcp-server') {
                     continue;
                 }
@@ -282,9 +282,9 @@ function compile() {
         // Define MCP server configurations
         const mcpServers = [
             {
-                sourceDir: 'auto-mcp-demo',
-                targetDirName: 'auto-mcp-demo',
-                projectName: 'bdd-auto-mcp-server',
+                sourceDir: 'pywinauto-mcp-server',
+                targetDirName: 'pywinauto-mcp-server',
+                projectName: 'bdd-pywinauto-mcp-server',
                 description: 'MCP Server for Windows Browser Automation - BDD AI Toolkit'
             },
             {

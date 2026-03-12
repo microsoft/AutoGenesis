@@ -53,7 +53,7 @@ export class McpServerManager {
     const projectBaseName = path.basename(projectPath);
     const serverTypeSuffix =
       serverType === "windows-browser" ? "windows" : "appium";
-    const serverName = `bdd-pywinauto-mcp-${projectBaseName}-${serverTypeSuffix}`;
+    const serverName = `auto-genesis-extension-${projectBaseName}-${serverTypeSuffix}`;
     console.log(`Setting up MCP server: ${serverName}`);
 
     // Use extension's storage path instead of project path to keep MCP server hidden from users

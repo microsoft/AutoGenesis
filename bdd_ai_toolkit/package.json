@@ -2,8 +2,8 @@
   "name": "bdd-ai-toolkit",
   "publisher": "liujingping",
   "displayName": "BDD AI Toolkit",
-  "description": "AI-powered toolkit for recording and managing BDD test cases in Cucumber/Gherkin format with intelligent code analysis",
-  "version": "1.2.43",
+  "description": "AI-powered toolkit for debugging and managing BDD test cases in Cucumber/Gherkin format with intelligent code analysis",
+  "version": "1.5.1",
   "icon": "resources/icon.png",
   "repository": {
     "type": "git",
@@ -43,22 +43,6 @@
     "configuration": {
       "title": "BDD AI Toolkit",
       "properties": {
-        "bddAiToolkit.cucumber.rootDirectory": {
-          "type": "string",
-          "default": "",
-          "description": "Root directory path used to search for automation test case implementation files. Can be an absolute path or relative to the workspace. Leave blank to use default search strategy."
-        },
-        "bddAiToolkit.cucumber.implementationPattern": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "*.py",
-            "steps/*.py"
-          ],
-          "description": "File patterns used to find step implementations, relative to the test case root directory or feature file directory."
-        },
         "bddAiToolkit.cucumber.copilotPrompt": {
           "type": "string",
           "default": "Please use native-mcp-server to execute the following instructions:\n\n# Original BDD Test Case (strictly follow step-by-step):\n${scenario_text}\n\nRequirements:\nfeature_file = '${feature_file_path}'\n1. Before executing the first step, call `before_gen_code`, and after all steps are completed, sequentially call `preview_code_changes` and `confirm_code_change`.\n2. Execute **each step** exactly as written using native-mcp-server API calls, in order.\n3. **MANDATORY: For EVERY step, you MUST call an MCP tool. Never judge results by screenshots/snapshots alone.**\n4. **Do not modify, merge, skip, or add any step.** Do not lose bdd step keyword.\n5. Do not close browser",
@@ -118,11 +102,6 @@
         "category": "BDD AI Toolkit"
       },
       {
-        "command": "bddAiToolkit.configureRootDirectory",
-        "title": "Configure Test Root Directory",
-        "category": "BDD AI Toolkit"
-      },
-      {
         "command": "bddAiToolkit.executeNaturalLanguageTask",
         "title": "Execute Natural Language Task",
         "category": "BDD AI Toolkit"
@@ -151,7 +130,7 @@
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "@playwright/mcp": "0.0.40",
+    "@playwright/mcp": "0.0.13",
     "@playwright/test": "^1.52.0",
     "@types/adm-zip": "^0.5.7",
     "@types/js-yaml": "^4.0.9",

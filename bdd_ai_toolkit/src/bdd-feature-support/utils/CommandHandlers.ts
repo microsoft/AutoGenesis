@@ -48,16 +48,25 @@ export class CommandHandlers {
         .getBackgroundExtractor()
         .extractBackground(document);
 
-      // Generate text for Copilot
-      const scenarioText = await this.copilotService.generateScenarioText(
-        scenario,
-        uri.fsPath,
-        background || undefined
-      );
+      // Check if autoGenesis-run skill exists in the workspace
+      const skillName = 'autoGenesis-run';
+      let textToSend: string;
+
+      if (this.copilotService.hasSkillInWorkspace(skillName)) {
+        // Use skill invocation command
+        textToSend = this.copilotService.generateSkillCommand(skillName, scenarioName);
+      } else {
+        // Fallback: generate full prompt text for Copilot
+        textToSend = await this.copilotService.generateScenarioText(
+          scenario,
+          uri.fsPath,
+          background || undefined
+        );
+      }
 
       // Copy to clipboard and open Copilot chat
-      await vscode.env.clipboard.writeText(scenarioText);
-      await vscode.commands.executeCommand('workbench.action.chat.open', scenarioText);
+      await vscode.env.clipboard.writeText(textToSend);
+      await vscode.commands.executeCommand('workbench.action.chat.open', textToSend);
       await new Promise(resolve => setTimeout(resolve, 800));
 
     } catch (error) {
