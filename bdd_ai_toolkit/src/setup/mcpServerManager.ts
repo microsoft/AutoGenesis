@@ -579,14 +579,20 @@ export class McpServerManager {
   }
 
   /**
-   * Read and process DRIVER_CONFIGS from appium-mcp-server conf/appium_conf.json
+   * Read and process DRIVER_CONFIGS from appium-mcp-server conf/appium_conf.template.json
    */
   private async extractAppiumDriverConfigs(serverPath: string): Promise<any> {
     try {
-      const driverConfPath = path.join(serverPath, "conf", "appium_conf.json");
+      const driverConfPath = path.join(
+        serverPath,
+        "conf",
+        "appium_conf.template.json"
+      );
 
       if (!fs.existsSync(driverConfPath)) {
-        console.warn(`conf/appium_conf.json not found at: ${driverConfPath}`);
+        console.warn(
+          `conf/appium_conf.template.json not found at: ${driverConfPath}`
+        );
         return {};
       }
 
@@ -617,19 +623,19 @@ export class McpServerManager {
         }
 
         console.log(
-          "Successfully extracted and processed DRIVER_CONFIGS from conf/appium_conf.json"
+          "Successfully extracted and processed DRIVER_CONFIGS from conf/appium_conf.template.json"
         );
         return processedConfigs;
       } catch (parseError) {
         console.warn(
-          "Failed to parse conf/appium_conf.json as JSON:",
+          "Failed to parse conf/appium_conf.template.json as JSON:",
           parseError
         );
         return {};
       }
     } catch (error) {
       console.error(
-        "Error extracting DRIVER_CONFIGS from conf/appium_conf.json:",
+        "Error extracting DRIVER_CONFIGS from conf/appium_conf.template.json:",
         error
       );
       return {};

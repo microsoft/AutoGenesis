@@ -3,7 +3,7 @@
   "publisher": "liujingping",
   "displayName": "BDD AI Toolkit",
   "description": "AI-powered toolkit for debugging and managing BDD test cases in Cucumber/Gherkin format with intelligent code analysis",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "icon": "resources/icon.png",
   "repository": {
     "type": "git",
