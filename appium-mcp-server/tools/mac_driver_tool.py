@@ -110,6 +110,29 @@ def _is_menu_bar_element(element, driver):
         except:
             return False
 
+async def tap_coordinates_macos(caller: str, x: int, y: int, step: str = "", scenario: str = "", step_raw: str = "", driver_manager=None) -> str:
+    """macOS tap at coordinates using mouse click (touch is not supported on macOS)."""
+    resp = init_tool_response()
+    try:
+        driver = driver_manager._driver
+        # Use W3C Actions with absolute coordinates (origin: "viewport")
+        # ActionChains uses origin: "pointer" which fails when there's no prior position
+        driver.execute_script("macos: click", {"x": x, "y": y})
+        time.sleep(1)
+        resp["status"] = "success"
+    except Exception as e:
+        resp["status"] = "error"
+        resp["error"] = f"Failed to tap at ({x}, {y}): {str(e)}"
+        logger.error(f"Error tapping coordinates on macOS: {e}")
+
+    try:
+        resp["data"] = {"page_source": simplify_page_source(driver_manager._driver.page_source)}
+    except Exception:
+        resp["data"] = {"page_source": ""}
+
+    return json.dumps(format_tool_response(resp))
+
+
 async def click_element_macos(caller: str, locator_value: str, locator_strategy: str = "", step: str = "", scenario: str = "", step_raw: str = "", driver_manager=None) -> str:
     """macOS optimized click element with smart menu bar filtering
     
