@@ -101,107 +101,157 @@ def extract_element_info(element):
     return info
 
 
-def simplify_page_source(page_source: str, max_size: int = 200000) -> str:
-    """Simplify page source if it's too large by keeping only essential elements"""
+def _remove_empty_containers(elem):
+    """Remove XCUIElementTypeOther/Group nodes that have no label/identifier/title.
+    Their children are promoted to the parent, preserving the meaningful hierarchy."""
+    new_children = []
+    for child in elem:
+        tag = child.tag
+        label = child.attrib.get("label", "")
+        identifier = child.attrib.get("identifier", "")
+        title = child.attrib.get("title", "")
+
+        is_empty_container = (
+            tag in ("XCUIElementTypeOther", "XCUIElementTypeGroup")
+            and not label
+            and not identifier
+            and not title
+        )
+
+        if is_empty_container:
+            # Skip this node, promote its children
+            for grandchild in child:
+                processed = _remove_empty_containers(grandchild)
+                if processed is not None:
+                    new_children.append(processed)
+        else:
+            processed = _remove_empty_containers(child)
+            if processed is not None:
+                new_children.append(processed)
+
+    new_elem = ET.Element(elem.tag, elem.attrib)
+    for c in new_children:
+        new_elem.append(c)
+    return new_elem
+
+
+def _remove_collapsed_menus(elem):
+    """Remove XCUIElementTypeMenu and XCUIElementTypeMenuItem nodes that are
+    NOT visible.  Expanded (visible) menus are preserved."""
+    new_children = []
+    for child in elem:
+        if child.tag in ("XCUIElementTypeMenu", "XCUIElementTypeMenuItem") and not is_element_visible(child):
+            continue
+        processed = _remove_collapsed_menus(child)
+        new_children.append(processed)
+
+    new_elem = ET.Element(elem.tag, elem.attrib)
+    for c in new_children:
+        new_elem.append(c)
+    return new_elem
+
+
+# Attributes worth keeping for UI understanding and element location
+_KEEP_ATTRS = {
+    "identifier", "label", "title", "value", "placeholderValue",
+    "enabled", "selected",
+    "x", "y", "width", "height",
+    "elementType",
+    # Android attributes
+    "text", "content-desc", "resource-id", "class",
+    "clickable", "focusable", "scrollable", "checkable", "checked",
+    "bounds",
+}
+
+# Attribute values that are defaults and can be omitted to save space
+_DEFAULT_SKIP = {
+    ("enabled", "true"),
+    ("selected", "false"),
+    ("clickable", "false"),
+    ("focusable", "false"),
+    ("scrollable", "false"),
+    ("checkable", "false"),
+    ("checked", "false"),
+}
+
+
+def _strip_attributes(elem):
+    """Keep only meaningful attributes and drop default values."""
+    new_attrib = {}
+    for k, v in elem.attrib.items():
+        if k not in _KEEP_ATTRS:
+            continue
+        if (k, v) in _DEFAULT_SKIP:
+            continue
+        if k in ("label", "title", "identifier", "value", "placeholderValue",
+                 "text", "content-desc", "resource-id") and not v:
+            continue
+        new_attrib[k] = v
+
+    new_elem = ET.Element(elem.tag, new_attrib)
+    for child in elem:
+        new_elem.append(_strip_attributes(child))
+    return new_elem
+
+
+def simplify_page_source(page_source: str, max_size: int = 60000) -> str:
+    """Simplify page source to fit within max_size while preserving hierarchy.
+
+    Pipeline order (progressive, each stage checks size before proceeding):
+      0. Size check — return as-is if already small enough
+      1. Filter invisible elements
+      2. Truncate long text values (cheap, can save space early)
+      3. Remove collapsed menus (invisible Menu/MenuItem — ~30% savings on macOS)
+      4. Remove empty containers (Other/Group with no info — promotes children)
+      5. Strip redundant attributes (keep only useful ones, drop defaults)
+      *. Hard truncation as final fallback
+    """
+    # --- Stage 0: Size check ---
     if len(page_source) <= max_size:
         return page_source
 
     try:
-        # Parse XML
         root = ET.fromstring(page_source)
-
-        # Strategy 1: Filter out invisible elements first
-        root = filter_visible_elements(root)
-        if root is None:
-            return "<hierarchy><summary>No visible elements found</summary></hierarchy>"
-        
-        simplified = ET.tostring(root, encoding="unicode")
-        if len(simplified) <= max_size:
-            return simplified
-
-        # Strategy 2: Truncate long text values
-        for elem in root.iter():
-            if "text" in elem.attrib and len(elem.attrib["text"]) > 100:
-                elem.attrib["text"] = elem.attrib["text"][:97] + "..."
-            if "content-desc" in elem.attrib and len(elem.attrib["content-desc"]) > 100:
-                elem.attrib["content-desc"] = elem.attrib["content-desc"][:97] + "..."
-
-        simplified = ET.tostring(root, encoding="unicode")
-        if len(simplified) <= max_size:
-            return simplified
-
-        # Strategy 3: Keep only interactive/meaningful elements
-        important_elements = []
-        for elem in root.iter():
-            if (
-                elem.attrib.get("clickable") == "true"
-                or elem.attrib.get("enabled") == "true"
-                or elem.attrib.get("focusable") == "true"
-                or elem.attrib.get("text")
-                or elem.attrib.get("content-desc")
-                or "edit" in elem.attrib.get("class", "").lower()
-                or "button" in elem.attrib.get("class", "").lower()
-                or "text" in elem.attrib.get("class", "").lower()
-            ):
-                important_elements.append(elem)
-
-        # Iteratively reduce elements until size is acceptable
-        element_limit = min(len(important_elements), 70)
-
-        while element_limit > 0:
-            new_root = ET.Element("hierarchy")
-            for elem in important_elements[:element_limit]:
-                # Create a copy of the element with essential attributes only
-                new_elem = ET.Element(elem.tag)
-
-                # Keep all attributes but truncate long text values
-                for attr, value in elem.attrib.items():
-                    # Only truncate text and content-desc if they're very long
-                    if attr in ["text", "content-desc"] and len(value) > 50:
-                        value = value[:47] + "..."
-                    new_elem.set(attr, value)
-
-                new_root.append(new_elem)
-
-            simplified = ET.tostring(new_root, encoding="unicode")
-
-            # Check if size is acceptable
-            if len(simplified) <= max_size:
-                return simplified
-
-            # Reduce element count and try again
-            element_limit = int(element_limit * 0.7)
-
-        # Strategy 4: If still too large, create minimal structure
-        new_root = ET.Element("hierarchy")
-        summary_elem = ET.Element("summary")
-        summary_elem.set(
-            "message", f"Page simplified - original size: {len(page_source)} chars"
-        )
-        summary_elem.set("interactive_elements", str(len(important_elements)))
-        new_root.append(summary_elem)
-
-        # Add first few most important elements with minimal info
-        for i, elem in enumerate(important_elements[:10]):
-            simple_elem = ET.Element(f"element_{i}")
-            simple_elem.set("class", elem.attrib.get("class", "unknown")[:20])
-            if elem.attrib.get("text"):
-                simple_elem.set("text", elem.attrib["text"][:30] + "...")
-            if elem.attrib.get("content-desc"):
-                simple_elem.set("desc", elem.attrib["content-desc"][:30] + "...")
-            if elem.attrib.get("clickable") == "true":
-                simple_elem.set("clickable", "true")
-            new_root.append(simple_elem)
-
-        simplified = ET.tostring(new_root, encoding="unicode")
-
-        # Final fallback: ensure we never exceed max_size
-        if len(simplified) > max_size:
-            simplified = simplified[: max_size - 15] + "...[truncated]"
-
-        return simplified
-
     except ET.ParseError:
-        # If XML parsing fails, return truncated string with safety margin
-        truncated = page_source[: max_size - 15] + "...[truncated]"
-        return truncated
+        return page_source[:max_size - 15] + "...[truncated]"
+
+    # --- Stage 1: Filter invisible elements ---
+    root = filter_visible_elements(root)
+    if root is None:
+        return "<hierarchy><summary>No visible elements found</summary></hierarchy>"
+
+    result = ET.tostring(root, encoding="unicode")
+    if len(result) <= max_size:
+        return result
+
+    # --- Stage 2: Truncate long text values ---
+    for elem in root.iter():
+        for attr in ("text", "content-desc", "label", "value", "title"):
+            val = elem.attrib.get(attr, "")
+            if len(val) > 80:
+                elem.attrib[attr] = val[:77] + "..."
+
+    result = ET.tostring(root, encoding="unicode")
+    if len(result) <= max_size:
+        return result
+
+    # --- Stage 3: Remove collapsed menu items ---
+    root = _remove_collapsed_menus(root)
+    result = ET.tostring(root, encoding="unicode")
+    if len(result) <= max_size:
+        return result
+
+    # --- Stage 4: Remove empty containers (promotes children) ---
+    root = _remove_empty_containers(root)
+    result = ET.tostring(root, encoding="unicode")
+    if len(result) <= max_size:
+        return result
+
+    # --- Stage 5: Strip redundant attributes ---
+    root = _strip_attributes(root)
+    result = ET.tostring(root, encoding="unicode")
+    if len(result) <= max_size:
+        return result
+
+    # --- Final fallback: hard truncation ---
+    return result[:max_size - 15] + "...[truncated]"

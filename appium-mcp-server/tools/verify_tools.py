@@ -65,7 +65,7 @@ def register_verify_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error verifying element: {e}")
         page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
+        resp["data"] = {"page_source": simplify_page_source(page_source)}
 
         return json.dumps(format_tool_response(resp))
 
@@ -102,7 +102,7 @@ def register_verify_tools(mcp, driver_manager):
             else:
                 resp["status"] = "error"
         page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
+        resp["data"] = {"page_source": simplify_page_source(page_source)}
 
         return json.dumps(format_tool_response(resp))
 
@@ -165,7 +165,7 @@ def register_verify_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error verifying element attribute: {e}")
         page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
+        resp["data"] = {"page_source": simplify_page_source(page_source)}
 
         return json.dumps(format_tool_response(resp))
 
@@ -247,7 +247,7 @@ def register_verify_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error verifying element location: {e}")
         page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
+        resp["data"] = {"page_source": simplify_page_source(page_source)}
 
         return json.dumps(format_tool_response(resp))
 

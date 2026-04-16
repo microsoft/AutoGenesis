@@ -19,7 +19,7 @@ ERRORS=0
 
 # 1. Check Accessibility Permission
 echo "📋 1. Checking Accessibility Permission..."
-if osascript -e 'tell application "System Events" to keystroke "test"' 2>/dev/null; then
+if osascript -e 'tell application "System Events" to get name of first process whose frontmost is true' 2>/dev/null; then
     echo -e "   ✅ ${GREEN}Accessibility: Granted${NC}"
 else
     echo -e "   ❌ ${RED}Accessibility: Not granted${NC}"
@@ -104,7 +104,7 @@ fi
 
 # Check Screen Recording Permission (Optional)
 echo -e "\n📋 6. Checking Screen Recording Permission (Optional)..."
-if screencapture -T 1 /tmp/test_screenshot.png 2>/dev/null; then
+if screencapture -x -t png /tmp/test_screenshot.png 2>/dev/null && [ -f /tmp/test_screenshot.png ]; then
     echo -e "   ✅ ${GREEN}Screen Recording: Granted${NC}"
     rm -f /tmp/test_screenshot.png 2>/dev/null
 else
@@ -184,6 +184,7 @@ APPIUM_ARGS=(
     "--log" "$LOG_FILE"
     "--relaxed-security"
     "--allow-insecure" "chromedriver_autodownload"
+    "--session-override"
 )
 
 # 8. Check WebDriverAgentMac build status

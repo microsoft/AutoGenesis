@@ -166,7 +166,7 @@ def register_appium_driver_tools(mcp, driver_manager):
             logger.error(f"Error verifying element: {e}")
             
         page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source, max_size=500000)}
+        resp["data"] = {"page_source": simplify_page_source(page_source)}
 
         return json.dumps(format_tool_response(resp))
 
