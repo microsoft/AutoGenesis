@@ -469,6 +469,12 @@ def register_appium_driver_tools(mcp, driver_manager):
         resp = init_tool_response()
         try:
             driver = driver_manager._driver
+            platform = driver.capabilities.get("platformName", "unknown")
+
+            if platform.lower() == "mac":
+                from tools.mac_driver_tool import tap_coordinates_macos
+                return await tap_coordinates_macos(caller, x, y, step, scenario, step_raw, driver_manager)
+
             driver.tap([(x, y)])
             resp["status"] = "success"
         except Exception as e:
