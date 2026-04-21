@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 
 import xml.etree.ElementTree as ET
+from collections import defaultdict
 
 
 def is_element_visible(element):
@@ -255,3 +256,170 @@ def simplify_page_source(page_source: str, max_size: int = 60000) -> str:
 
     # --- Final fallback: hard truncation ---
     return result[:max_size - 15] + "...[truncated]"
+
+
+# --- Page source summary for agent-friendly output ---
+
+# Element types that represent overlay/popup containers — expand to depth 3
+_OVERLAY_TYPES = {
+    "dialog", "sheet", "alert", "panel", "popover", "menu",
+    "xcuielementtypedialog", "xcuielementtypesheet", "xcuielementtypealert",
+    "xcuielementtypepanel", "xcuielementtypepopover", "xcuielementtypemenu",
+    # Android
+    "android.widget.popupwindow", "android.app.dialog",
+}
+
+# Element types considered interactive
+_INTERACTIVE_TYPES = {
+    "button", "textfield", "securetextfield", "checkbox", "radiobutton",
+    "switch", "slider", "picker", "tab", "menuitem", "link",
+    "combobox", "popupbutton", "incrementarrow", "decrementarrow",
+    "searchfield", "textarea", "togglebutton",
+    # XCUIElementType prefixed
+    "xcuielementtypebutton", "xcuielementtypetextfield",
+    "xcuielementtypesecuretextfield", "xcuielementtypecheckbox",
+    "xcuielementtyperadiobutton", "xcuielementtypeswitch",
+    "xcuielementtypeslider", "xcuielementtypepicker",
+    "xcuielementtypetab", "xcuielementtypemenuitem",
+    "xcuielementtypelink", "xcuielementtypecombobox",
+    "xcuielementtypepopupbutton", "xcuielementtypesearchfield",
+    "xcuielementtypetextarea", "xcuielementtypetoggle",
+    # Android
+    "android.widget.button", "android.widget.edittext",
+    "android.widget.checkbox", "android.widget.radiobutton",
+    "android.widget.switch", "android.widget.togglebutton",
+    "android.widget.spinner", "android.widget.seekbar",
+}
+
+
+def _short_type(tag):
+    """Strip common prefixes to get a short type name."""
+    if tag.startswith("XCUIElementType"):
+        return tag[len("XCUIElementType"):]
+    if tag.startswith("android.widget."):
+        return tag[len("android.widget."):]
+    if tag.startswith("android.view."):
+        return tag[len("android.view."):]
+    return tag
+
+
+def _element_label(elem):
+    """Get a display label for an element."""
+    for attr in ("label", "title", "identifier", "name", "text", "content-desc", "value"):
+        val = elem.attrib.get(attr, "").strip()
+        if val:
+            return val[:60]
+    return ""
+
+
+def _is_overlay(elem):
+    """Check if element is an overlay/popup container."""
+    tag_lower = elem.tag.lower()
+    if tag_lower in _OVERLAY_TYPES:
+        return True
+    # Check role/subrole attributes (macOS accessibility)
+    for attr in ("role", "subrole", "elementType"):
+        val = elem.attrib.get(attr, "").lower()
+        if val in _OVERLAY_TYPES:
+            return True
+    return False
+
+
+def _is_interactive(elem):
+    """Check if element is interactive."""
+    tag_lower = elem.tag.lower()
+    if tag_lower in _INTERACTIVE_TYPES:
+        return True
+    # Android clickable
+    if elem.attrib.get("clickable") == "true":
+        return True
+    return False
+
+
+def _build_tree_lines(elem, depth, max_depth, indent=0):
+    """Recursively build indented tree lines."""
+    lines = []
+    short = _short_type(elem.tag)
+    label = _element_label(elem)
+
+    # Skip hierarchy/root wrapper nodes
+    if elem.tag.lower() in ("hierarchy", "appiumaut"):
+        for child in elem:
+            lines.extend(_build_tree_lines(child, depth, max_depth, indent))
+        return lines
+
+    # Determine overlay marker
+    overlay = _is_overlay(elem)
+    if overlay:
+        prefix = "  " * indent + f"[{short}]"
+    else:
+        prefix = "  " * indent + short
+
+    if label:
+        lines.append(f'{prefix} "{label}"')
+    else:
+        lines.append(prefix)
+
+    # Determine child max depth: overlays get +1
+    child_max = max_depth + 1 if overlay else max_depth
+
+    if depth < child_max:
+        for child in elem:
+            lines.extend(_build_tree_lines(child, depth + 1, child_max, indent + 1))
+
+    return lines
+
+
+def _collect_interactive(elem):
+    """Collect all interactive elements from the full tree."""
+    result = defaultdict(list)
+    for node in elem.iter():
+        if _is_interactive(node):
+            short = _short_type(node.tag)
+            label = _element_label(node)
+            if label:
+                result[short].append(label)
+            else:
+                result[short].append("(unlabeled)")
+    return result
+
+
+def summarize_page_source(page_source):
+    """Generate an agent-friendly summary of the page source.
+
+    Returns a text summary with:
+    - UI structure tree (depth 2, depth 3 for dialogs/panels/menus)
+    - Flat list of all interactive elements
+    """
+    if not page_source or not page_source.strip():
+        return "Empty page source"
+
+    try:
+        root = ET.fromstring(page_source)
+    except ET.ParseError:
+        return "Failed to parse page source"
+
+    # Build structure tree
+    tree_lines = _build_tree_lines(root, depth=0, max_depth=2)
+
+    # Collect interactive elements
+    interactive = _collect_interactive(root)
+
+    # Format output
+    parts = ["=== UI Structure (depth 2, overlays depth 3) ==="]
+    parts.extend(tree_lines)
+
+    if interactive:
+        parts.append("")
+        parts.append("=== Interactive Elements ===")
+        for elem_type, labels in sorted(interactive.items()):
+            # Deduplicate while preserving order
+            seen = set()
+            unique = []
+            for l in labels:
+                if l not in seen:
+                    seen.add(l)
+                    unique.append(l)
+            parts.append(f"{elem_type}s: {', '.join(unique)}")
+
+    return "\n".join(parts)

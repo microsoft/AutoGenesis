@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import asyncio
 import logging
 import time
 from appium.webdriver.common.appiumby import AppiumBy
@@ -17,11 +18,10 @@ import inspect
 
 # from utils.element_util import extract_element_info
 from utils.logger import log_tool_call
-from utils.response_format import format_tool_response, init_tool_response
+from utils.response_format import format_tool_response, init_tool_response, handle_page_source
 from utils.gen_code import record_calls
 from utils.logger import get_mcp_logger
 from tools.appium_driver_tool import get_appium_locator
-from tools.appium_driver_tool import simplify_page_source
 
 
 logger = get_mcp_logger()
@@ -110,8 +110,19 @@ def _is_menu_bar_element(element, driver):
         except:
             return False
 
-async def tap_coordinates_macos(caller: str, x: int, y: int, step: str = "", scenario: str = "", step_raw: str = "", driver_manager=None) -> str:
-    """macOS tap at coordinates using mouse click (touch is not supported on macOS)."""
+async def tap_coordinates_macos(caller: str, x: int, y: int, step: str = "", scenario: str = "", step_raw: str = "", driver_manager=None, page_source_file: str = "", summary_only: bool = False) -> str:
+    """macOS tap at coordinates using mouse click (touch is not supported on macOS).
+
+    Args:
+        caller: caller name
+        x: x coordinate
+        y: y coordinate
+        step: step name
+        scenario: scenario name
+        step_raw: raw original step text
+        page_source_file: optional, save page source to this file path instead of embedding inline
+        summary_only: optional, if true return agent-friendly summary instead of full page source
+    """
     resp = init_tool_response()
     try:
         driver = driver_manager._driver
@@ -125,18 +136,29 @@ async def tap_coordinates_macos(caller: str, x: int, y: int, step: str = "", sce
         resp["error"] = f"Failed to tap at ({x}, {y}): {str(e)}"
         logger.error(f"Error tapping coordinates on macOS: {e}")
 
-    try:
-        resp["data"] = {"page_source": simplify_page_source(driver_manager._driver.page_source)}
-    except Exception:
-        resp["data"] = {"page_source": ""}
+    if resp.get("status") != "error":
+        try:
+            handle_page_source(resp, driver_manager._driver.page_source, page_source_file, summary_only)
+        except Exception:
+            resp["data"] = {"page_source": ""}
 
     return json.dumps(format_tool_response(resp))
 
 
-async def click_element_macos(caller: str, locator_value: str, locator_strategy: str = "", step: str = "", scenario: str = "", step_raw: str = "", driver_manager=None) -> str:
+async def click_element_macos(caller: str, locator_value: str, locator_strategy: str = "", step: str = "", scenario: str = "", step_raw: str = "", driver_manager=None, page_source_file: str = "", summary_only: bool = False) -> str:
     """macOS optimized click element with smart menu bar filtering
-    
+
     Uses optimized menu detection to select the best clickable element.
+
+    Args:
+        caller: caller name
+        locator_value: element locator value
+        locator_strategy: strategy of the locator
+        step: step name
+        scenario: scenario name
+        step_raw: raw original step text
+        page_source_file: optional, save page source to this file path instead of embedding inline
+        summary_only: optional, if true return agent-friendly summary instead of full page source
     """
     resp = init_tool_response()
 
@@ -185,15 +207,11 @@ async def click_element_macos(caller: str, locator_value: str, locator_strategy:
             time.sleep(3)
 
         # Add page source to response
-        resp["data"] = {"page_source": simplify_page_source(driver.page_source)}
-        
+        handle_page_source(resp, driver.page_source, page_source_file, summary_only)
+
     except Exception as e:
         resp["status"] = "error"
         resp["error"] = f"Element {locator_value} not found or not clickable: {str(e)}"
-        try:
-            resp["data"] = {"page_source": simplify_page_source(driver.page_source)}
-        except:
-            resp["data"] = {"page_source": ""}
 
     return json.dumps(format_tool_response(resp))
 
@@ -205,7 +223,7 @@ def register_mac_driver_tools(mcp, driver_manager):
     @log_tool_call
     @record_calls(driver_manager)
     async def send_keys_on_macos(
-        caller: str, locator_value: str, locator_strategy: str, text: str, step: str = "", scenario: str = "", step_raw: str = ""
+        caller: str, locator_value: str, locator_strategy: str, text: str, step: str = "", scenario: str = "", step_raw: str = "", page_source_file: str = "", summary_only: bool = False
     ) -> str:
         """enter text in element by macos script
         Args:
@@ -216,6 +234,8 @@ def register_mac_driver_tools(mcp, driver_manager):
             step: step name
             step_raw: raw original step text
             scenario: scenario name
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -238,20 +258,21 @@ def register_mac_driver_tools(mcp, driver_manager):
             resp["error"] = f"Element {locator_value} not found or not editable"
         
         # Try to get page source safely
-        try:
-            driver = driver_manager._driver
-            page_source = driver.page_source
-            resp["data"] = {"page_source": simplify_page_source(page_source)}
-        except Exception as page_e:
-            logger.warning(f"Failed to get page source: {page_e}")
-            resp["data"] = {"page_source": ""}
+        if resp.get("status") != "error":
+            try:
+                driver = driver_manager._driver
+                page_source = driver.page_source
+                handle_page_source(resp, page_source, page_source_file, summary_only)
+            except Exception as page_e:
+                logger.warning(f"Failed to get page source: {page_e}")
+                resp["data"] = {"page_source": ""}
 
         return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
     @record_calls(driver_manager)
-    async def directly_send_keys(caller: str, text: str, step: str = "", scenario: str = "", step_raw: str = "") -> str:
+    async def directly_send_keys(caller: str, text: str, step: str = "", scenario: str = "", step_raw: str = "", page_source_file: str = "", summary_only: bool = False) -> str:
         """Send keys directly to the focused element
 
         Args:
@@ -259,6 +280,8 @@ def register_mac_driver_tools(mcp, driver_manager):
             step: step name
             step_raw: raw original step text
             scenario: scenario name
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -273,21 +296,21 @@ def register_mac_driver_tools(mcp, driver_manager):
             resp["error"] = f"Failed to send keys {text}"
         
         # Try to get page source safely
-        try:
-            driver = driver_manager._driver
-            page_source = driver.page_source
-            resp["data"] = {"page_source": simplify_page_source(page_source)}
-        except Exception as page_e:
-            logger.warning(f"Failed to get page source: {page_e}")
-            resp["data"] = {"page_source": ""}
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            try:
+                driver = driver_manager._driver
+                page_source = driver.page_source
+                handle_page_source(resp, page_source, page_source_file, summary_only)
+            except Exception as page_e:
+                logger.warning(f"Failed to get page source: {page_e}")
+                resp["data"] = {"page_source": ""}
 
         return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
     @record_calls(driver_manager)
-    async def right_click_element(caller: str, locator_value: str, locator_strategy: str = "", step: str = "", scenario: str = "", step_raw: str = "") -> str:
+    async def right_click_element(caller: str, locator_value: str, locator_strategy: str = "", step: str = "", scenario: str = "", step_raw: str = "", page_source_file: str = "", summary_only: bool = False) -> str:
         """Right click element with smart menu filtering
 
         Args:
@@ -296,6 +319,8 @@ def register_mac_driver_tools(mcp, driver_manager):
             step: step name
             step_raw: raw original step text
             scenario: scenario name
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -319,21 +344,23 @@ def register_mac_driver_tools(mcp, driver_manager):
             resp["status"] = "error"
             resp["error"] = f"Element {locator_value} not found or not clickable"
         
-        # Try to get page source safely
-        try:
-            driver = driver_manager._driver
-            page_source = driver.page_source
-            resp["data"] = {"page_source": simplify_page_source(page_source)}
-        except Exception as page_e:
-            logger.warning(f"Failed to get page source: {page_e}")
-            resp["data"] = {"page_source": ""}
+        # Wait for context menu to fully render before capturing page source
+        if resp.get("status") != "error":
+            await asyncio.sleep(0.5)
+            try:
+                driver = driver_manager._driver
+                page_source = driver.page_source
+                handle_page_source(resp, page_source, page_source_file, summary_only)
+            except Exception as page_e:
+                logger.warning(f"Failed to get page source: {page_e}")
+                resp["data"] = {"page_source": ""}
 
         return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
     @record_calls(driver_manager)
-    async def press_key(caller: str, key: str, step: str = "", scenario: str = "", step_raw: str = "") -> str:
+    async def press_key(caller: str, key: str, step: str = "", scenario: str = "", step_raw: str = "", page_source_file: str = "", summary_only: bool = False) -> str:
         """Press a key in Mac app
 
         Args:
@@ -341,6 +368,8 @@ def register_mac_driver_tools(mcp, driver_manager):
             step: step name
             step_raw: raw original step text
             scenario: scenario name
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -414,20 +443,21 @@ def register_mac_driver_tools(mcp, driver_manager):
             logger.error(f"Error pressing key: {e}")
         
         # Try to get page source safely
-        try:
-            driver = driver_manager._driver
-            page_source = driver.page_source
-            resp["data"] = {"page_source": simplify_page_source(page_source)}
-        except Exception as page_e:
-            logger.warning(f"Failed to get page source: {page_e}")
-            resp["data"] = {"page_source": ""}
+        if resp.get("status") != "error":
+            try:
+                driver = driver_manager._driver
+                page_source = driver.page_source
+                handle_page_source(resp, page_source, page_source_file, summary_only)
+            except Exception as page_e:
+                logger.warning(f"Failed to get page source: {page_e}")
+                resp["data"] = {"page_source": ""}
 
         return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
     @record_calls(driver_manager)
-    async def drag_element_to_element(caller: str, source_xpath: str, target_xpath: str, drop_position: str = "center", step: str = "", scenario: str = "", step_raw: str = "") -> str:
+    async def drag_element_to_element(caller: str, source_xpath: str, target_xpath: str, drop_position: str = "center", step: str = "", scenario: str = "", step_raw: str = "", page_source_file: str = "", summary_only: bool = False) -> str:
         """Drag from one element to another element using XPath locators with precise drop positioning
 
         Args:
@@ -437,6 +467,8 @@ def register_mac_driver_tools(mcp, driver_manager):
             step: step name
             step_raw: raw original step text
             scenario: scenario name
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -500,20 +532,21 @@ def register_mac_driver_tools(mcp, driver_manager):
             resp["error"] = f"Failed to drag element: {str(e)}"
         
         # Try to get page source safely
-        try:
-            driver = driver_manager._driver
-            page_source = driver.page_source
-            resp["data"] = {"page_source": simplify_page_source(page_source)}
-        except Exception as page_e:
-            logger.warning(f"Failed to get page source: {page_e}")
-            resp["data"] = {"page_source": ""}
+        if resp.get("status") != "error":
+            try:
+                driver = driver_manager._driver
+                page_source = driver.page_source
+                handle_page_source(resp, page_source, page_source_file, summary_only)
+            except Exception as page_e:
+                logger.warning(f"Failed to get page source: {page_e}")
+                resp["data"] = {"page_source": ""}
 
         return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
     @record_calls(driver_manager)
-    async def mouse_hover(caller: str, locator_value: str, locator_strategy: str = "", duration: float = 1.0, step: str = "", scenario: str = "", step_raw: str = "") -> str:
+    async def mouse_hover(caller: str, locator_value: str, locator_strategy: str = "", duration: float = 1.0, step: str = "", scenario: str = "", step_raw: str = "", page_source_file: str = "", summary_only: bool = False) -> str:
         """Hover mouse over an element with smart menu filtering
 
         Args:
@@ -523,6 +556,8 @@ def register_mac_driver_tools(mcp, driver_manager):
             step: step name
             step_raw: raw original step text
             scenario: scenario name
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -550,30 +585,33 @@ def register_mac_driver_tools(mcp, driver_manager):
             resp["error"] = f"Failed to hover over element {locator_value}"
 
         # Try to get page source safely
-        try:
-            driver = driver_manager._driver
-            page_source = driver.page_source
-            resp["data"] = {"page_source": simplify_page_source(page_source)}
-        except Exception as page_e:
-            logger.warning(f"Failed to get page source: {page_e}")
-            resp["data"] = {"page_source": ""}
+        if resp.get("status") != "error":
+            try:
+                driver = driver_manager._driver
+                page_source = driver.page_source
+                handle_page_source(resp, page_source, page_source_file, summary_only)
+            except Exception as page_e:
+                logger.warning(f"Failed to get page source: {page_e}")
+                resp["data"] = {"page_source": ""}
 
         return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
     @record_calls(driver_manager)
-    async def verify_elements_order(caller: str, element_xpaths: list[str], expected_orders: list[int] = [], direction: str = "vertical", step: str = "", scenario: str = "", step_raw: str = "") -> str:
+    async def verify_elements_order(caller: str, element_xpaths: list[str], expected_orders: list[int] = [], direction: str = "vertical", step: str = "", scenario: str = "", step_raw: str = "", page_source_file: str = "", summary_only: bool = False) -> str:
         """Verify that elements appear in the specified order using XPath locators for better performance and stability
-        
+
         Args:
             caller: caller name
             element_xpaths: List of XPath expressions to verify order for
             expected_orders: Optional list of expected order indices. If not provided, elements are expected to be in the same order as element_xpaths
             direction: Direction to check order - 'vertical' (y-axis) or 'horizontal' (x-axis)
             step: step name
-            scenario: scenario name  
+            scenario: scenario name
             step_raw: raw original step text
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -665,16 +703,15 @@ def register_mac_driver_tools(mcp, driver_manager):
             resp["error"] = f"Failed to verify elements order: {str(e)}"
         
         # Try to get page source safely
-        try:
-            driver = driver_manager._driver
-            page_source = driver.page_source
-            if "data" not in resp:
-                resp["data"] = {}
-            resp["data"]["page_source"] = simplify_page_source(page_source)
-        except Exception as page_e:
-            logger.warning(f"Failed to get page source: {page_e}")
-            if "data" not in resp:
-                resp["data"] = {}
-            resp["data"]["page_source"] = ""
+        if resp.get("status") != "error":
+            try:
+                driver = driver_manager._driver
+                page_source = driver.page_source
+                handle_page_source(resp, page_source, page_source_file, summary_only)
+            except Exception as page_e:
+                logger.warning(f"Failed to get page source: {page_e}")
+                if "data" not in resp:
+                    resp["data"] = {}
+                resp["data"]["page_source"] = ""
 
         return json.dumps(format_tool_response(resp))

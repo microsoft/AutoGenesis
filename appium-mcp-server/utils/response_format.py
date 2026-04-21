@@ -49,3 +49,38 @@ def is_successful(response_json: str) -> bool:
     except Exception:
         return False
 
+
+def handle_page_source(resp, page_source, page_source_file="", summary_only=False):
+    """Handle page source output with flexible control.
+
+    Args:
+        resp: The tool response dict to populate.
+        page_source: The raw page source string (before simplification).
+        page_source_file: If non-empty, save simplified page source to this file path.
+        summary_only: If True, return agent-friendly summary instead of full page source.
+
+    Behavior matrix:
+        file=""  summary=False → resp["page_source"] = simplified
+        file=""  summary=True  → resp["page_source_summary"] = summary
+        file=X   summary=False → save simplified to file + resp["page_source"] = simplified
+        file=X   summary=True  → save simplified to file + resp["page_source_summary"] = summary
+    """
+    from utils.element_util import simplify_page_source
+
+    if "data" not in resp:
+        resp["data"] = {}
+
+    simplified = simplify_page_source(page_source)
+
+    if page_source_file:
+        with open(page_source_file, "w", encoding="utf-8") as f:
+            f.write(simplified)
+        resp["data"]["page_source_file"] = page_source_file
+
+    if summary_only:
+        from utils.element_util import summarize_page_source
+        # Use raw page_source for summary to avoid parsing truncated XML
+        resp["data"]["page_source_summary"] = summarize_page_source(page_source)
+    else:
+        resp["data"]["page_source"] = simplified
+

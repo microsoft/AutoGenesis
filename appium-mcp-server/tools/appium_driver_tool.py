@@ -13,7 +13,7 @@ import json
 
 # from utils.element_util import extract_element_util
 from utils.logger import log_tool_call
-from utils.response_format import format_tool_response, init_tool_response
+from utils.response_format import format_tool_response, init_tool_response, handle_page_source
 from utils.gen_code import record_calls
 from utils.element_util import simplify_page_source
 from llm.chat import is_ai_enabled, LLMClient
@@ -69,7 +69,7 @@ def register_appium_driver_tools(mcp, driver_manager):
     @mcp.tool()
     @log_tool_call
     @record_calls(driver_manager)
-    async def app_launch(caller: str = "", step: str = "", scenario: str = "", arguments: Optional[list] = None) -> str:
+    async def app_launch(caller: str = "", step: str = "", scenario: str = "", arguments: Optional[list] = None, page_source_file: str = "", summary_only: bool = False) -> str:
         """Launch app
 
         Args:
@@ -79,6 +79,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             arguments: Optional list of command line arguments to pass to the app.
                       For Mac Edge, you can use ["--no-first-run"] to skip first run setup,
                       ["--disable-web-security"] to disable web security, etc.
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -87,7 +89,7 @@ def register_appium_driver_tools(mcp, driver_manager):
                 arguments = None
             driver_manager.app_launch(kill_existing=1, arguments=arguments)
             snapshot = driver_manager._driver.page_source
-            resp["data"] = {"page_source": simplify_page_source(snapshot)}
+            handle_page_source(resp, snapshot, page_source_file, summary_only)
             resp["status"] = "success"
         except Exception as e:
             resp["error"] = repr(e)
@@ -135,6 +137,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """find element on page, if element exists, return success, otherwise return error
 
@@ -144,6 +148,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: required, step name
             step_raw: required, raw original step text
             scenario: required, scenario name
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -165,8 +171,9 @@ def register_appium_driver_tools(mcp, driver_manager):
             resp["error"] = repr(e)
             logger.error(f"Error verifying element: {e}")
             
-        page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            page_source = driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
@@ -180,6 +187,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """Click element
 
@@ -189,6 +198,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             step_raw: raw original step text
             scenario: scenario name
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -200,7 +211,7 @@ def register_appium_driver_tools(mcp, driver_manager):
                 logger.info("Detected macOS platform - delegating to mac_driver_tool")
                 from tools.mac_driver_tool import click_element_macos
 
-                return await click_element_macos(caller, locator_value, locator_strategy, step, scenario, step_raw, driver_manager)
+                return await click_element_macos(caller, locator_value, locator_strategy, step, scenario, step_raw, driver_manager, page_source_file, summary_only)
 
             locator = get_appium_locator(locator_strategy, locator_value)
 
@@ -226,12 +237,10 @@ def register_appium_driver_tools(mcp, driver_manager):
         if resp.get("status") == "success":
             time.sleep(3)
 
-        # Capture page_source only if not already captured
-        if "page_source" not in resp.get("data", {}):
+        # Capture page_source only if not error and not already captured
+        if resp.get("status") != "error" and "page_source" not in resp.get("data", {}):
             page_source = driver.page_source
-            if "data" not in resp:
-                resp["data"] = {}
-            resp["data"]["page_source"] = simplify_page_source(page_source)
+            handle_page_source(resp, page_source, page_source_file, summary_only)
         return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
@@ -245,6 +254,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """enter text in element
         Args:
@@ -255,6 +266,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             step_raw: raw original step text
             scenario: scenario name
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -270,8 +283,9 @@ def register_appium_driver_tools(mcp, driver_manager):
             logger.error(f"Error entering text in element: {e}")
             resp["status"] = "error"
             resp["error"] = f"Element {locator_value} not found or not editable"
-        page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            page_source = driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
@@ -288,6 +302,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """Swipe from one point to another
 
@@ -301,6 +317,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             scenario: scenario name
             step_raw: raw original step text
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -335,8 +353,9 @@ def register_appium_driver_tools(mcp, driver_manager):
         except Exception as e:
             resp["error"] = repr(e)
             logger.error(f"Error performing swipe: {e}")
-        page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            page_source = driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
@@ -350,6 +369,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """Double click element
 
@@ -359,6 +380,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             step_raw: raw original step text
             scenario: scenario name
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -381,8 +404,9 @@ def register_appium_driver_tools(mcp, driver_manager):
         except Exception as e:
             resp["error"] = repr(e)
             logger.error(f"Error double clicking element: {e}")
-        page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            page_source = driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
@@ -396,6 +420,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """Scroll to make element visible
 
@@ -405,6 +431,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             scenario: scenario name
             step_raw: raw original step text
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -441,8 +469,9 @@ def register_appium_driver_tools(mcp, driver_manager):
         except Exception as e:
             resp["error"] = repr(e)
             logger.error(f"Error scrolling to element: {e}")
-        page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            page_source = driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
@@ -456,6 +485,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """Tap at specific coordinates
 
@@ -465,6 +496,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             scenario: scenario name
             step_raw: raw original step text
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -473,15 +506,16 @@ def register_appium_driver_tools(mcp, driver_manager):
 
             if platform.lower() == "mac":
                 from tools.mac_driver_tool import tap_coordinates_macos
-                return await tap_coordinates_macos(caller, x, y, step, scenario, step_raw, driver_manager)
+                return await tap_coordinates_macos(caller, x, y, step, scenario, step_raw, driver_manager, page_source_file, summary_only)
 
             driver.tap([(x, y)])
             resp["status"] = "success"
         except Exception as e:
             resp["error"] = repr(e)
             logger.error(f"Error tapping coordinates: {e}")
-        page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            page_source = driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
@@ -494,6 +528,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """Perform pinch zoom gesture
 
@@ -502,6 +538,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             scenario: scenario name
             step_raw: raw original step text
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -517,21 +555,24 @@ def register_appium_driver_tools(mcp, driver_manager):
         except Exception as e:
             resp["error"] = repr(e)
             logger.error(f"Error performing pinch zoom: {e}")
-        page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            page_source = driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
     @mcp.tool()
     @log_tool_call
     @record_calls(driver_manager)
-    async def hide_keyboard(caller: str, step: str = "", scenario: str = "", step_raw: str = "") -> str:
+    async def hide_keyboard(caller: str, step: str = "", scenario: str = "", step_raw: str = "", page_source_file: str = "", summary_only: bool = False) -> str:
         """Hide the keyboard if it's visible
 
         Args:
             step: step name
             scenario: scenario name
             step_raw: raw original step text
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -547,8 +588,9 @@ def register_appium_driver_tools(mcp, driver_manager):
         except Exception as e:
             resp["error"] = repr(e)
             logger.error(f"Error hiding keyboard: {e}")
-        page_source = driver.page_source
-        resp["data"]["page_source"] = page_source
+        if resp.get("status") != "error":
+            page_source = driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
@@ -562,6 +604,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """Switch a specific element to the 'on' state
 
@@ -572,6 +616,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             scenario: scenario name
             step_raw: raw original step text
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -588,8 +634,9 @@ def register_appium_driver_tools(mcp, driver_manager):
         except Exception as e:
             resp["error"] = repr(e)
             logger.error(f"Error switching element to on: {e}")
-        page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            page_source = driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
@@ -603,6 +650,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """Switch a specific element to the 'off' state
 
@@ -613,6 +662,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             scenario: scenario name
             step_raw: raw original step text
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -629,8 +680,9 @@ def register_appium_driver_tools(mcp, driver_manager):
         except Exception as e:
             resp["error"] = repr(e)
             logger.error(f"Error switching element to off: {e}")
-        page_source = driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            page_source = driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
@@ -681,6 +733,8 @@ def register_appium_driver_tools(mcp, driver_manager):
         step: str = "",
         scenario: str = "",
         step_raw: str = "",
+        page_source_file: str = "",
+        summary_only: bool = False,
     ) -> str:
         """Get current page source with size control
 
@@ -689,17 +743,16 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             scenario: scenario name
             step_raw: raw original step text
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
             driver = driver_manager._driver
             page_source = driver.page_source
 
-            # Use simplify_page_source to control the size
-            simplified_page_source = simplify_page_source(page_source)
-
             resp["status"] = "success"
-            resp["data"] = {"page_source": simplified_page_source}
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         except Exception as e:
             resp["error"] = repr(e)
@@ -711,7 +764,7 @@ def register_appium_driver_tools(mcp, driver_manager):
     @mcp.tool()
     @log_tool_call
     @record_calls(driver_manager)
-    async def time_sleep(caller: str, seconds: int = 1, step: str = "", scenario: str = "", step_raw: str = "") -> str:
+    async def time_sleep(caller: str, seconds: int = 1, step: str = "", scenario: str = "", step_raw: str = "", page_source_file: str = "", summary_only: bool = False) -> str:
         """Sleep for a specified number of seconds
 
         Args:
@@ -720,6 +773,8 @@ def register_appium_driver_tools(mcp, driver_manager):
             step: step name
             scenario: scenario name
             step_raw: raw original step text
+            page_source_file: optional, save page source to this file path instead of embedding inline
+            summary_only: optional, if true return agent-friendly summary instead of full page source
         """
         resp = init_tool_response()
         try:
@@ -728,8 +783,9 @@ def register_appium_driver_tools(mcp, driver_manager):
         except Exception as e:
             resp["error"] = repr(e)
             logger.error(f"Error sleeping for {seconds} seconds: {e}")
-        page_source = driver_manager._driver.page_source
-        resp["data"] = {"page_source": simplify_page_source(page_source)}
+        if resp.get("status") != "error":
+            page_source = driver_manager._driver.page_source
+            handle_page_source(resp, page_source, page_source_file, summary_only)
 
         return json.dumps(format_tool_response(resp))
 
