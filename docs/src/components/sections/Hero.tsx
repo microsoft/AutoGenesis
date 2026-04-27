@@ -49,7 +49,7 @@ export const Hero = () => {
               className="text-5xl sm:text-6xl font-bold text-slate-900 mb-6 leading-tight"
             >
               <span className="bg-gradient-to-r from-purple-primary to-purple-secondary bg-clip-text text-transparent">
-                Full-Self Quality
+                AutoGenesis
               <br />
               </span>
               The easiest way to build and trust software quality

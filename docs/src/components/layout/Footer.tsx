@@ -18,7 +18,7 @@ export const Footer = () => {
               <span className="text-2xl font-bold text-white">AutoGenesis</span>
             </div>
             <p className="text-slate-400 leading-relaxed">
-              Full-Self Quality: AI-powered test automation delivering org-level impact
+              AI-powered test automation delivering org-level impact
               across all platforms. Record once, replay everywhere.
             </p>
           </div>

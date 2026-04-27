@@ -1,4 +1,4 @@
-# Multi-stage build for FSQ Site
+# Multi-stage build for AutoGenesis Site
 
 # Stage 1: Build the application
 FROM node:20-alpine AS builder
