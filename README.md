@@ -29,6 +29,8 @@ within the file for "TODO".
 
 # AutoGenesis
 
+> 📚 **[View Documentation Website](https://microsoft.github.io/AutoGenesis/)** | [中文文档](https://microsoft.github.io/AutoGenesis/)
+
 AutoGenesis is an AI-powered automated testing framework based on Model Context Protocol (MCP), supporting multiple platforms including desktop applications (Windows/macOS) and mobile applications (iOS/Android).
 
 ## Platform-Specific Documentation
