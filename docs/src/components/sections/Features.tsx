@@ -7,7 +7,7 @@ export const Features = () => {
     {
       icon: Rocket,
       title: 'Scale coverage effortlessly',
-      description: 'Get hundreds of reliable tests in days. FSQ converts real user actions and natural language into automated end-to-end coverage.',
+      description: 'Get hundreds of reliable tests in days. AutoGenesis converts real user actions and natural language into automated end-to-end coverage.',
       gradient: 'from-purple-primary to-purple-secondary',
     },
     {
@@ -19,7 +19,7 @@ export const Features = () => {
     {
       icon: Bot,
       title: 'Expand coverage while you sleep',
-      description: 'Engineers focus on shipping features while FSQ handles QA. Tests evolve with UI changes, reducing manual maintenance.',
+      description: 'Engineers focus on shipping features while AutoGenesis handles QA. Tests evolve with UI changes, reducing manual maintenance.',
       gradient: 'from-blue-accent to-purple-primary',
     },
     {
@@ -31,7 +31,7 @@ export const Features = () => {
     {
       icon: Lock,
       title: 'Record once, trust every run',
-      description: 'FSQ captures deterministic user actions with high-fidelity recording, ensuring test steps are precise, repeatable, and free from interpretation drift.',
+      description: 'AutoGenesis captures deterministic user actions with high-fidelity recording, ensuring test steps are precise, repeatable, and free from interpretation drift.',
       gradient: 'from-purple-secondary to-blue-accent',
     },
     {
@@ -71,7 +71,7 @@ export const Features = () => {
           </h2>
 
           <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-            FSQ transforms how organizations approach regression testing with AI-powered
+            AutoGenesis transforms how organizations approach regression testing with AI-powered
             automation that delivers sustained, org-level impact.
           </p>
         </motion.div>
@@ -127,10 +127,10 @@ export const Features = () => {
           {/* CI/CD row */}
           <div className="flex flex-wrap justify-center items-center gap-10 md:gap-14">
             {[
-              { name: 'Azure DevOps', logo: '/fsq-site/logos/azure-devops.svg' },
-              { name: 'CircleCI', logo: '/fsq-site/logos/circleci.svg' },
-              { name: 'Jenkins', logo: '/fsq-site/logos/jenkins.svg' },
-              { name: 'Travis CI', logo: '/fsq-site/logos/travis-ci.svg' },
+              { name: 'Azure DevOps', logo: '/AutoGenesis/logos/azure-devops.svg' },
+              { name: 'CircleCI', logo: '/AutoGenesis/logos/circleci.svg' },
+              { name: 'Jenkins', logo: '/AutoGenesis/logos/jenkins.svg' },
+              { name: 'Travis CI', logo: '/AutoGenesis/logos/travis-ci.svg' },
             ].map((ci, index) => (
               <motion.div
                 key={ci.name}

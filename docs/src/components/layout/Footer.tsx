@@ -2,7 +2,7 @@ import { Mail } from 'lucide-react';
 
 export const Footer = () => {
   const socialLinks = [
-    { icon: Mail, href: 'mailto:fsqgroup@microsoft.com', label: 'Email' },
+    { icon: Mail, href: 'mailto:autogenesis@microsoft.com', label: 'Email' },
   ];
 
   return (
@@ -13,9 +13,9 @@ export const Footer = () => {
           <div className="text-center max-w-2xl">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-primary to-purple-secondary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">F</span>
+                <span className="text-white font-bold text-xl">A</span>
               </div>
-              <span className="text-2xl font-bold text-white">FSQ</span>
+              <span className="text-2xl font-bold text-white">AutoGenesis</span>
             </div>
             <p className="text-slate-400 leading-relaxed">
               Full-Self Quality: AI-powered test automation delivering org-level impact

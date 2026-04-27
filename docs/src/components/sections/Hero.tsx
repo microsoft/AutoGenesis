@@ -63,7 +63,7 @@ export const Hero = () => {
               transition={{ delay: 0.5, duration: 0.8 }}
               className="text-xl text-slate-600 mb-8 leading-relaxed"
             >
-              FSQ records real user actions and replays them reliably—so teams ship faster with confidence.
+              AutoGenesis records real user actions and replays them reliably—so teams ship faster with confidence.
             </motion.p>
 
             {/* Stats Preview */}

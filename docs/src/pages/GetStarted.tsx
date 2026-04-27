@@ -719,7 +719,7 @@ export const GetStarted = () => {
           className="bg-white rounded-2xl shadow-xl p-8 md:p-12"
         >
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 text-center">
-            Get Started with FSQ
+            Get Started with AutoGenesis
           </h1>
           <p className="text-slate-600 text-center mb-12 text-lg">
             AI-powered automation testing for Windows, macOS, and Mobile platforms

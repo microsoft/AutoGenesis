@@ -95,7 +95,7 @@ export const Impact = () => {
           </h2>
 
           <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-4">
-            FSQ has adopted AI-powered coding and automation agents as org-level virtual engineers,
+            AutoGenesis has adopted AI-powered coding and automation agents as org-level virtual engineers,
             driving a structural shift in how regression testing scales across platforms.
           </p>
 
@@ -159,7 +159,7 @@ export const Impact = () => {
             These gains are ongoing and repeatable
           </h3>
           <p className="text-xl text-purple-50 max-w-3xl mx-auto leading-relaxed">
-            Across Windows, Android, iOS, and macOS, FSQ's coding agents continuously
+            Across Windows, Android, iOS, and macOS, AutoGenesis's coding agents continuously
             deliver org-level impact. Not one-time optimizations, but sustained structural
             improvements to your testing operations.
           </p>
