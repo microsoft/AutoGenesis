@@ -6,7 +6,7 @@ import { GetStarted } from './pages/GetStarted';
 
 function App() {
   return (
-    <Router basename="/fsq-site">
+    <Router basename="/AutoGenesis">
       <div className="min-h-screen bg-white">
         <Header />
         <Routes>
