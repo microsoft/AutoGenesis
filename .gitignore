@@ -66,3 +66,8 @@ appium-mcp-server/conf/appium_conf.json
 appium-mcp-server/uv.lock
 */uv.lock
 pywinauto-mcp-server/conf/pywinauto_conf.json
+
+# Documentation site
+docs/node_modules/
+docs/dist/
+website/
