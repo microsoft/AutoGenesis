@@ -87,13 +87,17 @@ class AppSessionManager:
 
     async def app_launch(
             self, 
-            kill_existing: int = 0, 
+            kill_existing: int = 0,
+            extra_args: list = [],
             ):
             
         if kill_existing == 1:
             await self.app_close()
 
         args = self.launch_args.copy()
+        if extra_args:
+            args.extend(extra_args)
+
         is_new_launch = False
         try:
             if self._app:

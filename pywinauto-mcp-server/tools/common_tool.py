@@ -23,7 +23,8 @@ def register_common_tools(mcp, app_manager):
     @log_tool_call
     @record_calls(app_manager)
     async def app_launch(
-        caller: str, 
+        caller: str,
+        extra_args: list[str] = [],
         scenario: str = "", 
         step: str = "", 
         step_raw: str = "",
@@ -42,7 +43,7 @@ def register_common_tools(mcp, app_manager):
         """
         resp = init_tool_response()        
         try:
-            await app_manager.app_launch()
+            await app_manager.app_launch(extra_args=extra_args)
             resp["status"] = "success"
             await fill_snapshot(resp, app_manager, need_snapshot=need_snapshot)
         except Exception as e:
