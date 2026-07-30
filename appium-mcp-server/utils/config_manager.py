@@ -48,6 +48,7 @@ class ConfigManager:
         self.config_path = os.path.abspath(config_path)
         self.on_config_change = on_config_change
         self._config = None
+        self._full_config = None
         self._lock = threading.Lock()
         self._observer = None
 
@@ -98,6 +99,7 @@ class ConfigManager:
                     logger.warning("No APPIUM_DRIVER_CONFIGS found in configuration file")
 
                 self._config = appium_driver_configs
+                self._full_config = config_data
                 logger.info(f"Configuration loaded successfully. Platforms: {list(appium_driver_configs.keys())}")
 
                 # Notify callback if registered
@@ -117,6 +119,11 @@ class ConfigManager:
         """Get the current configuration"""
         with self._lock:
             return self._config.copy() if self._config else {}
+
+    def get_full_config(self):
+        """Get the full top-level configuration (includes MAC_VM, LLM settings, etc.)"""
+        with self._lock:
+            return self._full_config.copy() if self._full_config else {}
 
     def get_platform_config(self, platform):
         """Get configuration for a specific platform"""

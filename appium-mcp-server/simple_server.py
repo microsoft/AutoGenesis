@@ -63,7 +63,7 @@ def main():
         print("No driver configurations found. Please check your config file.")
         sys.exit(1)
 
-    driver_manager = DriverSessionManager(args.platform, driver_configs=DRIVER_CONFIGS)
+    driver_manager = DriverSessionManager(args.platform, driver_configs=DRIVER_CONFIGS, full_config=config_manager.get_full_config())
 
     # Start watching for config file changes
     config_manager.start_watching()
@@ -89,6 +89,8 @@ def main():
         mcp.run(transport=args.transport)
     finally:
         # Cleanup on shutdown
+        if driver_manager:
+            driver_manager.shutdown()
         if config_manager:
             config_manager.stop_watching()
 

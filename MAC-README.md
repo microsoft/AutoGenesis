@@ -380,6 +380,7 @@ View examples in the `behave-demo/features/` directory:
 
 ## Additional Resources
 
+- [Tart Headless 模式](docs/tart-headless.md) - 在隔离的 macOS VM 中运行 Appium Mac2 自动化
 - [macOS Appium Setup Guide](bdd_ai_toolkit/docs/macOS_Appium_Setup_Guide.md) - Detailed setup instructions
 - [Appium Mac2 Driver Documentation](https://github.com/appium/appium-mac2-driver) - Official Mac2 driver documentation
 - [Appium Documentation](https://appium.io/docs/en/latest/) - General Appium documentation

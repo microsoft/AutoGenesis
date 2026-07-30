@@ -19,19 +19,33 @@ logger = get_mcp_logger()
 
 
 class DriverSessionManager:
-    def __init__(self, device: str, driver_configs: dict = None):
+    def __init__(self, device: str, driver_configs: dict = None, full_config: dict = None):
         if device not in driver_configs:
             raise ValueError(f"Unsupported device: {device}")
         self.device = device
         self.driver_configs = driver_configs  # Store all configs
+        self.full_config = full_config or {}  # Top-level config (for MAC_VM etc.)
         self.config = driver_configs[device]
         self.gen_code_id = None
         self.gen_code_cache = []
         self.proposed_changes = None  # Store proposed code changes
         self.header_code = ""
         self._driver = None
-        self.server_url = self.config["server_url"]
+        self._tunnel = None
+        self._vm_config = None
         self.is_executing = False
+
+        # Headless VM setup — deferred to first tool call for stdio compatibility
+        self._headless_ready = False
+
+        self.server_url = self.config["server_url"]
+
+    def _ensure_headless_ready(self):
+        """Lazy init: run VM setup on first access instead of __init__."""
+        if self._headless_ready:
+            return
+        self._setup_headless_vm()
+        self._headless_ready = True
 
     def update_config(self, new_driver_configs: dict):
         """Update configuration dynamically without restarting"""
@@ -48,7 +62,40 @@ class DriverSessionManager:
         logger.info("Configuration updated successfully. Changes will take effect on next session creation.")
         return True
 
+    def _setup_headless_vm(self):
+        """If vm.enabled, start VM + tunnel so server_url points to localhost."""
+        from headless.config import VMConfig
+
+        vm_cfg = VMConfig.from_dict(self.full_config.get("MAC_VM"))
+        if not vm_cfg.enabled:
+            return
+
+        from headless.vm import ensure_vm, start_vm, get_ip, provision, ensure_appium, install_app, ensure_host_deps
+        from headless.tunnel import start_tunnel, wait_tunnel_ready
+
+        self._vm_config = vm_cfg
+
+        ensure_host_deps()
+
+        if vm_cfg.managed:
+            ensure_vm(vm_cfg.name, vm_cfg.image)
+
+        start_vm(vm_cfg.name)
+        ip = get_ip(vm_cfg.name)
+
+        if vm_cfg.managed:
+            provision(ip, vm_cfg.user, vm_cfg.password, vm_cfg.name)
+
+        install_app(ip, vm_cfg.user, vm_cfg.password, vm_cfg.app_install)
+        ensure_appium(ip, vm_cfg.user, vm_cfg.password)
+
+        self._tunnel = start_tunnel(ip, user=vm_cfg.user, password=vm_cfg.password)
+        wait_tunnel_ready(4723)
+        self.server_url = "http://127.0.0.1:4723"
+        logger.info("Headless VM mode ready")
+
     def start_tool_execution(self, tool_name):
+        self._ensure_headless_ready()
         if self.is_executing:
             logger.warning(f"Tool {tool_name} blocked: another tool is executing")
             return False
@@ -72,6 +119,7 @@ class DriverSessionManager:
             return False
 
     def app_launch(self, kill_existing: int = 0, arguments: list = None):
+        self._ensure_headless_ready()
         # Normalize arguments: ensure it's a valid list or None
         if not isinstance(arguments, list) or not arguments:
             arguments = None
@@ -226,6 +274,17 @@ class DriverSessionManager:
             self._driver = None
         else:
             logger.warning("No valid driver session to close.")
+
+    def shutdown(self):
+        """Release the driver and resources owned by the headless manager."""
+        self.session_close()
+        if self._tunnel:
+            from headless.tunnel import stop_tunnel
+            stop_tunnel(self._tunnel)
+            self._tunnel = None
+        if self._vm_config and self._vm_config.stop_on_exit:
+            from headless.vm import stop_vm
+            stop_vm(self._vm_config.name)
 
     def get_app(self):
         if self._driver and self._is_session_valid():

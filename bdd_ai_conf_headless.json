@@ -1,0 +1,25 @@
+{
+    "MAC_VM": {
+        "enabled": false,
+        "name": "autogenesis-vm",
+        "image": "ghcr.io/FSQ-lab/macos-xcode-slim:latest",
+        "managed": true,
+        "user": "admin",
+        "password": "",
+        "stop_on_exit": false
+    },
+    "APPIUM_DRIVER_CONFIGS": {
+        "mac": {
+            "platformName": "Mac",
+            "automationName": "Mac2",
+            "bundleId": "com.microsoft.edgemac",
+            "appium:fullReset": false,
+            "appium:sessionTimeout": 6000,
+            "appium:newCommandTimeout": 6000,
+            "shouldUseSingletonTestManager": false,
+            "waitForQuiescence": false,
+            "showServerLogs": true,
+            "server_url": "http://127.0.0.1:4723"
+        }
+    }
+}

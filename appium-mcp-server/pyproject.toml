@@ -31,7 +31,7 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["utils*", "tools*", "llm*"]
+include = ["utils*", "tools*", "llm*", "headless*"]
 exclude = ["logs*", "conf*"]
 
 [tool.uv]
