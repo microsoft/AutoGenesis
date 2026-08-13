@@ -9,6 +9,7 @@
     "type": "git",
     "url": "https://github.com/microsoft/AutoGenesis.git"
   },
+  "homepage": "https://github.com/microsoft/AutoGenesis",
   "engines": {
     "vscode": "^1.95.0"
   },
