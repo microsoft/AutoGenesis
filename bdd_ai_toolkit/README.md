@@ -1,10 +1,9 @@
 # BDD AI Toolkit
 
 [![Version](https://img.shields.io/badge/version-1.2.43-blue.svg)](https://marketplace.visualstudio.com/)
-[![VS Code](https://img.shields.io/badge/VS%20Code-1.95.0+-007ACC.svg)](https://code.visualstudio.com/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-AI-powered VS Code extension for BDD test automation. **Record** test scenarios with AI assistance and **Replay** them instantly - no manual coding required!
+BDD AI Toolkit is an AI-powered BDD test automation toolkit compatible with Microsoft Visual Studio Code. **Record** test scenarios with AI assistance and **Replay** them instantly - no manual coding required!
 
 ## ✨ Features
 
@@ -136,8 +135,8 @@ Customize how AI generates code:
 
 ## 📚 Resources
 
-- 🐛 [Report Issues](https://github.com/microsoft/vscode-extension-samples/issues)
-- 💡 [Feature Requests](https://github.com/microsoft/vscode-extension-samples/discussions)
+- 🐛 [Report Issues](https://github.com/microsoft/AutoGenesis/issues)
+- 💡 [Feature Requests](https://github.com/microsoft/AutoGenesis/discussions)
 - 📖 [Gherkin Syntax Guide](https://cucumber.io/docs/gherkin/)
 - 📖 [Behave Documentation](https://behave.readthedocs.io/)
 
