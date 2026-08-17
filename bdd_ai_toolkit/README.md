@@ -1,6 +1,6 @@
 # BDD AI Toolkit
 
-[![Version](https://img.shields.io/badge/version-1.2.43-blue.svg)](https://marketplace.visualstudio.com/)
+[![Version](https://img.shields.io/badge/version-1.5.4-blue.svg)](https://marketplace.visualstudio.com/)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.95.0+-007ACC.svg)](https://code.visualstudio.com/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -136,8 +136,8 @@ Customize how AI generates code:
 
 ## 📚 Resources
 
-- 🐛 [Report Issues](https://github.com/microsoft/vscode-extension-samples/issues)
-- 💡 [Feature Requests](https://github.com/microsoft/vscode-extension-samples/discussions)
+- 🐛 Report issues through the extension publisher's support channel
+- 💡 Send feature requests through the extension publisher's support channel
 - 📖 [Gherkin Syntax Guide](https://cucumber.io/docs/gherkin/)
 - 📖 [Behave Documentation](https://behave.readthedocs.io/)
 
