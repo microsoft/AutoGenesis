@@ -1,7 +1,7 @@
 # BDD AI Toolkit
 
 [![Version](https://img.shields.io/badge/version-1.2.43-blue.svg)](https://marketplace.visualstudio.com/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 BDD AI Toolkit is an AI-powered BDD test automation toolkit compatible with Microsoft Visual Studio Code. **Record** test scenarios with AI assistance and **Replay** them instantly - no manual coding required!
 
@@ -14,7 +14,7 @@ BDD AI Toolkit is an AI-powered BDD test automation toolkit compatible with Micr
 - 🎯 **Interactive CodeLens** - Record and replay buttons above each scenario
 - 📝 **Natural Language Tasks** - Execute automation from plain English descriptions
 
-> 👨‍💻 **For Developers**: See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and contribution guidelines.
+> 👨‍💻 **For Developers**: See `CONTRIBUTING.md` for development setup and contribution guidelines.
 
 ---
 
@@ -52,7 +52,7 @@ Open VS Code Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`) → Search "BDD AI Tool
    > cd appium-mcp-server/docs
    > ./start_appium_on_mac.sh
    > ```
-   > For detailed setup instructions, see [macOS Appium Setup Guide](../appium-mcp-server/docs/macOS_Appium_Setup_Guide.md).
+   > For detailed setup instructions, see `appium-mcp-server/docs/macOS_Appium_Setup_Guide.md` in the source tree.
 
 4. **Configure Automation Platform**
    
@@ -135,8 +135,6 @@ Customize how AI generates code:
 
 ## 📚 Resources
 
-- 🐛 [Report Issues](https://github.com/microsoft/AutoGenesis/issues)
-- 💡 [Feature Requests](https://github.com/microsoft/AutoGenesis/discussions)
 - 📖 [Gherkin Syntax Guide](https://cucumber.io/docs/gherkin/)
 - 📖 [Behave Documentation](https://behave.readthedocs.io/)
 
@@ -144,7 +142,7 @@ Customize how AI generates code:
 
 ## 📄 License
 
-MIT License - See [LICENSE](LICENSE)
+MIT License
 
 ---
 
