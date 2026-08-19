@@ -14,6 +14,7 @@ from appium.options.ios import XCUITestOptions
 from appium.options.mac import Mac2Options  # Add this import for Mac automation
 from appium.options.android import UiAutomator2Options  # Add this for Android if needed
 from utils.logger import get_mcp_logger
+from utils.providers import resolve_capabilities, resolve_server_url
 
 logger = get_mcp_logger()
 
@@ -30,7 +31,9 @@ class DriverSessionManager:
         self.proposed_changes = None  # Store proposed code changes
         self.header_code = ""
         self._driver = None
-        self.server_url = self.config["server_url"]
+        # server_url may come from the config directly or from the selected
+        # cloud provider's default hub (see utils/providers.py).
+        self.server_url = resolve_server_url(self.config)
         self.is_executing = False
 
     def update_config(self, new_driver_configs: dict):
@@ -43,7 +46,7 @@ class DriverSessionManager:
 
         self.driver_configs = new_driver_configs
         self.config = new_driver_configs[self.device]
-        self.server_url = self.config["server_url"]
+        self.server_url = resolve_server_url(self.config)
 
         logger.info("Configuration updated successfully. Changes will take effect on next session creation.")
         return True
@@ -97,9 +100,10 @@ class DriverSessionManager:
             server_url = self.server_url
             logger.info(f"Connecting to Appium server at: {server_url}")
             
-            # Create a copy of config to modify
-            config_copy = self.config.copy()
-            
+            # Resolve provider capabilities (passthrough for configs without a
+            # "provider" key) and copy so we can add per-launch arguments.
+            config_copy = resolve_capabilities(self.config)
+
             # Add or override arguments if provided
             if arguments is not None:
                 config_copy["arguments"] = arguments

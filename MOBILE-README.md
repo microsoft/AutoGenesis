@@ -6,7 +6,8 @@ Appium MCP Server is a mobile application automated testing service based on Mod
 
 - 🤖 AI-assisted test script generation based on MCP protocol
 - 📱 Multi-platform support (iOS, Android)
-- 🔄 Cloud testing capabilities integrated with BrowserStack
+- 🔄 Cloud testing capabilities integrated with BrowserStack and TestMu AI (formerly LambdaTest)
+- 🧩 Extensible cloud provider system (add new providers with a single registry entry)
 - 🎯 Automatic generation of BDD format test code
 - 🚀 Support for various AI programming clients (VS Code, Cursor, etc.)
 
@@ -131,6 +132,78 @@ Then update `conf/appium_conf.json`:
   - `idleTimeout`: Idle timeout in seconds
   - `interactiveDebugging`: Whether to enable interactive debugging
 - `appium:app`: BrowserStack app URL (bs:// format link obtained after uploading the app)
+
+#### 3.3 Configure TestMu AI (formerly LambdaTest)
+
+These steps configure TestMu AI using the **cloud provider** system: you set `provider` and the server injects the correct hub URL, vendor options key (`lt:options`), and credentials for you. The same mechanism works for BrowserStack (`provider: browserstack`), and TestMu AI can equally be configured with a hand-written `lt:options` block if you prefer.
+
+**Step 1 — Register and get credentials**
+
+1. Sign up at [TestMu AI (formerly LambdaTest)](https://www.testmuai.com/) and open the **App Automation** dashboard.
+2. Copy your **Username** and **Access Key** from the account/profile settings.
+
+**Step 2 — Upload your app** (returns an `lt://` app id)
+
+```bash
+# Android APK
+curl -u "YOUR_LT_USERNAME:YOUR_LT_ACCESS_KEY" \
+  -X POST "https://manual-api.lambdatest.com/app/upload/realDevice" \
+  -F "appFile=@/path/to/your/app.apk" -F "name=YourApp"
+
+# iOS IPA
+curl -u "YOUR_LT_USERNAME:YOUR_LT_ACCESS_KEY" \
+  -X POST "https://manual-api.lambdatest.com/app/upload/realDevice" \
+  -F "appFile=@/path/to/your/app.ipa" -F "name=YourApp"
+```
+
+The response contains an `app_id` in the form `lt://APP...` — use it as `app` below.
+
+**Step 3 — Provide credentials** (keep secrets out of the config)
+
+The recommended way is environment variables — the provider reads them automatically:
+
+```bash
+export LT_USERNAME="your_lt_username"
+export LT_ACCESS_KEY="your_lt_access_key"
+```
+
+(You may instead put them in a `"credentials": { "username": "...", "accessKey": "..." }` block inside the platform config; env vars are used as a fallback when the config omits them.)
+
+**Step 4 — Point your platform block at the provider**
+
+Edit `conf/appium_conf.json` and set the `ios` (or `android`) block to use the `lambdatest` provider. Ready-to-copy `ios_lambdatest` / `android_lambdatest` examples already exist in `conf/appium_conf.template.json` — copy their contents into the `ios` / `android` key that you run the server with (`--platform ios`/`android`):
+
+```json
+"ios": {
+    "provider": "lambdatest",
+    "platformName": "iOS",
+    "appium:automationName": "XCUITest",
+    "deviceName": "iPhone 14",
+    "platformVersion": "16",
+    "providerOptions": {
+        "w3c": true,
+        "isRealMobile": true,
+        "app": "lt://YOUR_APP_ID",
+        "build": "ios automation",
+        "name": "AutoGenesis iOS test",
+        "project": "AutoGenesis"
+    }
+}
+```
+
+**How it works:** everything under `providerOptions` becomes the `lt:options` capability block verbatim, the hub URL defaults to `https://mobile-hub.lambdatest.com/wd/hub`, and your username/access key are injected as `user`/`accessKey`. You can override the hub by setting `server_url` explicitly (e.g. an EU data-center hub). `provider` accepts `lambdatest`, `testmu`, `testmu-ai`, or `lt`.
+
+#### 3.4 Cloud Provider Architecture (extensible)
+
+Provider definitions live in [`appium-mcp-server/utils/providers.py`](appium-mcp-server/utils/providers.py). Each backend is a single `ProviderSpec` describing its hub URL, vendor options key, credential field names, and credential environment variables:
+
+| Provider | `provider` value | Options key | Default hub | Credential env vars |
+|----------|------------------|-------------|-------------|---------------------|
+| Local Appium | `local` (or omit `provider`) | — | `http://127.0.0.1:4723` | — |
+| BrowserStack | `browserstack` | `bstack:options` | `https://hub.browserstack.com/wd/hub` | `BROWSERSTACK_USERNAME` / `BROWSERSTACK_ACCESS_KEY` |
+| TestMu AI (LambdaTest) | `lambdatest` | `lt:options` | `https://mobile-hub.lambdatest.com/wd/hub` | `LT_USERNAME` / `LT_ACCESS_KEY` |
+
+**Backward compatible:** a platform block **without** a `provider` key is passed through unchanged, so the existing BrowserStack and local configurations keep working exactly as before.
 
 ### 4. Start MCP Server
 
@@ -389,11 +462,11 @@ Or try re-syncing:
 
 Ensure Python version is 3.10 or higher. Check the log file `logs/mcp_server.log` for detailed error information.
 
-### BrowserStack Connection Failed
+### Cloud Provider Connection Failed (BrowserStack / TestMu AI)
 
-- Verify username and key are correct
+- Verify the username and access key are correct (or the `BROWSERSTACK_*` / `LT_*` environment variables)
 - Check network connection
-- Confirm BrowserStack account is active
+- Confirm your BrowserStack or TestMu AI account is active
 - Check firewall settings
 
 ### AI Client Cannot Recognize MCP Tools
