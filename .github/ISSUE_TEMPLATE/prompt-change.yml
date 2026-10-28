@@ -1,0 +1,90 @@
+name: Agent Contract or Prompt Change
+description: Propose a behavior change to AutoGenesis instructions, MCP prompts, or Agent Skills.
+title: "[Prompt]: "
+labels:
+  - "type:prompt"
+  - "area:agent-contract"
+  - "acceptance:pending"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Prompt changes are behavioral changes. They require an eval case, before/after evidence, and a safety-impact review.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Behavioral problem
+      description: Describe the observed behavior that should change. Include a transcript or artifact when available.
+    validations:
+      required: true
+  - type: dropdown
+    id: contract-layer
+    attributes:
+      label: Agent Contract layer
+      options:
+        - Fixed Core Policy
+        - Official Workflow
+        - MCP server instructions
+        - MCP prompt
+        - Agent Skill
+        - Project Appendix behavior
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Proposed contract change
+      description: State the smallest behavior change. Fixed safety and approval rules cannot be removed.
+    validations:
+      required: true
+  - type: textarea
+    id: affected-workflows
+    attributes:
+      label: Affected workflows
+      description: List execute_scenario, generate_scenario_test, natural-language execution, healing, or other affected workflows.
+    validations:
+      required: true
+  - type: textarea
+    id: eval-cases
+    attributes:
+      label: Eval cases
+      description: List the existing and new eval cases that must be run.
+    validations:
+      required: true
+  - type: textarea
+    id: baseline
+    attributes:
+      label: Baseline evidence
+      description: Record current tool-call sequence, completion result, retries, generated-code validity, and failures.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Provide observable Given/When/Then acceptance scenarios.
+      render: gherkin
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety impact
+      options:
+        - label: Step ordering remains enforced.
+          required: true
+        - label: Preview and explicit approval remain enforced.
+          required: true
+        - label: Bounded retry and stop conditions remain enforced.
+          required: true
+        - label: Secret redaction remains enforced.
+          required: true
+        - label: Generated code is still executed before acceptance.
+          required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Acceptance evidence
+      description: Specify the eval report and regression evidence required to accept this change.
+    validations:
+      required: true

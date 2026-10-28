@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://aka.ms/security.md
+    about: Do not disclose security vulnerabilities in public GitHub issues.

@@ -1,0 +1,60 @@
+name: Epic
+description: Track a product outcome composed of independently accepted capabilities.
+title: "[Epic]: "
+labels:
+  - "type:epic"
+  - "acceptance:pending"
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: State the product outcome in one sentence.
+    validations:
+      required: true
+  - type: textarea
+    id: user-value
+    attributes:
+      label: User value
+      description: Explain why this outcome matters to AutoGenesis users.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Define the capabilities included by this Epic.
+    validations:
+      required: true
+  - type: textarea
+    id: non-goals
+    attributes:
+      label: Non-goals
+      description: Define what this Epic will not attempt to solve.
+    validations:
+      required: true
+  - type: textarea
+    id: capabilities
+    attributes:
+      label: Capability issues
+      description: Link child Capability issues. Do not track implementation tasks directly in an Epic.
+      placeholder: |
+        - [ ] #123
+        - [ ] #124
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Epic acceptance
+      description: Describe the black-box user journey that proves the complete outcome.
+      render: gherkin
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and unresolved decisions
+      description: List product, compatibility, security, and migration risks.
+    validations:
+      required: true

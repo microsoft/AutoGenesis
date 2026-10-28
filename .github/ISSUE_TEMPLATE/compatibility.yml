@@ -1,0 +1,78 @@
+name: MCP Client Compatibility
+description: Qualify an MCP coding client for AutoGenesis protocol, workflow, or first-class support.
+title: "[Compatibility]: "
+labels:
+  - "type:compatibility"
+  - "acceptance:pending"
+body:
+  - type: input
+    id: client
+    attributes:
+      label: MCP client
+      placeholder: Claude Code, Codex, Cursor, or another client
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Client version
+    validations:
+      required: true
+  - type: dropdown
+    id: target-level
+    attributes:
+      label: Target support level
+      options:
+        - Protocol compatible
+        - Workflow compatible
+        - First-class supported
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, architecture, Python/uv versions, AutoGenesis package versions, and target platform.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance scenarios
+      description: Cover installation, initialize, tool and prompt discovery, workflow execution, reload behavior, and cleanup.
+      render: gherkin
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Required checks
+      options:
+        - label: Package installation succeeds without cloning AutoGenesis.
+          required: true
+        - label: Existing client MCP configuration is preserved.
+          required: true
+        - label: MCP initialize succeeds.
+          required: true
+        - label: Required tools are discovered.
+          required: true
+        - label: Agent Contract instructions or prompts are available.
+          required: true
+        - label: Re-running setup is idempotent.
+          required: true
+        - label: No plaintext secret is written or logged.
+          required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Attach doctor output, sanitized configuration diff, protocol transcript, and end-to-end result.
+    validations:
+      required: true
+  - type: textarea
+    id: limitations
+    attributes:
+      label: Known limitations
+      description: State unsupported reload, prompt, resource, approval, or workspace behavior. Enter "None" when fully supported.
+    validations:
+      required: true

@@ -1,0 +1,118 @@
+name: Capability
+description: Define a user-visible capability with executable acceptance criteria.
+title: "[Capability]: "
+labels:
+  - "type:capability"
+  - "acceptance:pending"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A capability must describe a user outcome, not an implementation task. It is ready for development only after its acceptance scenarios and non-goals are explicit.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What concrete user or product problem exists today?
+    validations:
+      required: true
+  - type: textarea
+    id: user-outcome
+    attributes:
+      label: User outcome
+      description: What can the user do after this capability is delivered?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Agent Contract
+        - Bootstrap
+        - Runtime
+        - Packaging
+        - Client compatibility
+        - VS Code extension
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is included in this issue?
+    validations:
+      required: true
+  - type: textarea
+    id: non-goals
+    attributes:
+      label: Non-goals
+      description: What is explicitly excluded?
+    validations:
+      required: true
+  - type: textarea
+    id: interfaces
+    attributes:
+      label: Interfaces affected
+      description: List affected MCP tools, prompts, package entrypoints, configuration schemas, extension commands, or public files. Enter "None" when not applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance scenarios
+      description: Write observable Given/When/Then scenarios. Implementers must not weaken these scenarios.
+      render: gherkin
+    validations:
+      required: true
+  - type: checkboxes
+    id: environments
+    attributes:
+      label: Verification environments
+      options:
+        - label: Linux package or protocol checks
+        - label: macOS package or platform checks
+        - label: Windows package or platform checks
+        - label: Clean temporary business project
+        - label: Existing VS Code workflow regression
+  - type: checkboxes
+    id: security
+    attributes:
+      label: Security considerations
+      options:
+        - label: Secrets or credentials
+        - label: Configuration file writes or merges
+        - label: Command or process execution
+        - label: Downloads or package installation
+        - label: File-system scope or path validation
+        - label: Prompt or instruction injection
+        - label: Not security-sensitive
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence required
+      description: Name the commands, artifacts, logs, screenshots, generated files, or compatibility results required for acceptance.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and blockers
+      description: Link prerequisite issues or state "None".
+    validations:
+      required: true
+  - type: checkboxes
+    id: ready
+    attributes:
+      label: Definition of Ready
+      options:
+        - label: The user outcome is unambiguous.
+          required: true
+        - label: Scope and non-goals are explicit.
+          required: true
+        - label: Acceptance scenarios are observable and executable.
+          required: true
+        - label: Public interface decisions are resolved or explicitly out of scope.
+          required: true
+        - label: Verification environments are available.
+          required: true
