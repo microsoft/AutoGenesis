@@ -3,12 +3,8 @@
   "publisher": "liujingping",
   "displayName": "BDD AI Toolkit",
   "description": "AI-powered toolkit for debugging and managing BDD test cases in Cucumber/Gherkin format with intelligent code analysis",
-  "version": "1.5.4",
+  "version": "1.5.6",
   "icon": "resources/icon.png",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/microsoft/AutoGenesis.git"
-  },
   "engines": {
     "vscode": "^1.95.0"
   },
