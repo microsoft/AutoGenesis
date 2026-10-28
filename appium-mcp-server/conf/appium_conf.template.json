@@ -56,6 +56,50 @@
             "waitForQuiescence": false,
             "showServerLogs": true,
             "server_url": "http://127.0.0.1:4723"
+        },
+        "ios_lambdatest": {
+            "provider": "lambdatest",
+            "platformName": "iOS",
+            "appium:automationName": "XCUITest",
+            "deviceName": "iPhone 14",
+            "platformVersion": "16",
+            "providerOptions": {
+                "w3c": true,
+                "isRealMobile": true,
+                "app": "lt://YOUR_APP_ID",
+                "build": "ios automation",
+                "name": "AutoGenesis iOS test",
+                "project": "AutoGenesis",
+                "devicelog": true,
+                "visual": true,
+                "network": false
+            },
+            "credentials": {
+                "username": "SET_LT_USERNAME_OR_USE_ENV",
+                "accessKey": "SET_LT_ACCESS_KEY_OR_USE_ENV"
+            }
+        },
+        "android_lambdatest": {
+            "provider": "lambdatest",
+            "platformName": "Android",
+            "appium:automationName": "UiAutomator2",
+            "deviceName": "Galaxy S22 5G",
+            "platformVersion": "12",
+            "providerOptions": {
+                "w3c": true,
+                "isRealMobile": true,
+                "app": "lt://YOUR_APP_ID",
+                "build": "android automation",
+                "name": "AutoGenesis Android test",
+                "project": "AutoGenesis",
+                "devicelog": true,
+                "visual": true,
+                "network": false
+            },
+            "credentials": {
+                "username": "SET_LT_USERNAME_OR_USE_ENV",
+                "accessKey": "SET_LT_ACCESS_KEY_OR_USE_ENV"
+            }
         }
     }
 }

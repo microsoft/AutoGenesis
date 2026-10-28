@@ -296,7 +296,20 @@ def before_all(context):
 
 
 def after_all(context):
-   pass
+    # Close the driver session on teardown. This matters for cloud providers
+    # (BrowserStack / TestMu AI): a session left open is timed out
+    # by the cloud and the build is marked "errored" even when all assertions
+    # passed. Harmless for local Appium. Best-effort — never fail teardown.
+    try:
+        session = getattr(context, "session", None)
+        if session is not None:
+            result = call_tool_sync(
+                context,
+                session.call_tool(name="session_close", arguments={"caller": "behave-teardown"}),
+            )
+            logger.info(f"after_all: session_close -> {get_tool_json(result)}")
+    except Exception as e:
+        logger.warning(f"after_all: session_close failed (ignored): {e}")
 
 def call_tool_sync(context, coro, timeout=400):
     start = time.time()

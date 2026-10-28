@@ -637,20 +637,50 @@ export class McpServerManager {
         // Extract APPIUM_DRIVER_CONFIGS from the JSON structure
         const driverConfigs = configs.APPIUM_DRIVER_CONFIGS || {};
 
+        // Credential fields to scrub from each provider's vendor options block
+        // so secrets are never written into generated config. Extensible: add a
+        // vendor options key + its credential field names when onboarding a new
+        // provider (mirrors appium-mcp-server/utils/providers.py).
+        const vendorCredFields: Record<string, string[]> = {
+          "bstack:options": ["userName", "accessKey"],
+          "lt:options": ["user", "accessKey"],
+        };
+        const scrub = (obj: any, fields: string[]) => {
+          if (obj && typeof obj === "object") {
+            for (const f of fields) {
+              if (obj[f]) {
+                obj[f] = "";
+              }
+            }
+          }
+        };
+
         // Process each config to remove sensitive data and clean up
         const processedConfigs: any = {};
         for (const [platform, config] of Object.entries(driverConfigs)) {
           const processedConfig = JSON.parse(JSON.stringify(config)); // Deep clone
 
-          // Clear userName and accessKey values from bstack:options (keep keys but set empty values)
-          if (processedConfig["bstack:options"]) {
-            if (processedConfig["bstack:options"].userName) {
-              processedConfig["bstack:options"].userName = "";
-            }
-            if (processedConfig["bstack:options"].accessKey) {
-              processedConfig["bstack:options"].accessKey = "";
-            }
+          // 1. Scrub credentials from any known vendor options block.
+          for (const [optionsKey, fields] of Object.entries(vendorCredFields)) {
+            scrub(processedConfig[optionsKey], fields);
           }
+
+          // 2. Scrub credentials used by the extensible provider mechanism:
+          //    the dedicated "credentials" block and any creds inlined into
+          //    "providerOptions".
+          scrub(processedConfig["credentials"], [
+            "username",
+            "user",
+            "accessKey",
+            "access_key",
+          ]);
+          scrub(processedConfig["providerOptions"], [
+            "user",
+            "userName",
+            "username",
+            "accessKey",
+            "access_key",
+          ]);
 
           processedConfigs[platform] = processedConfig;
         }
@@ -674,7 +704,6 @@ export class McpServerManager {
       return {};
     }
   }
-
 
   private async extractPywinautoConfig(serverPath: string): Promise<any> {
     try {
