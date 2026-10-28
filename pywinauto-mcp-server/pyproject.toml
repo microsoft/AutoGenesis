@@ -4,7 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
     "psutil",
-    "mcp>=1.23.0,<2",
+    "mcp>=1.30.0,<2",
     "janus",
     "pillow",
     "pywinauto>=0.6.9",

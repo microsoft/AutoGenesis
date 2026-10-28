@@ -1,5 +1,5 @@
 psutil
-mcp==1.23.0
+mcp==1.30.0
 janus
 pillow
 pywinauto>=0.6.9
